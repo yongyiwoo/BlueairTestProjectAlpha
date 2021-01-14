@@ -1,1 +1,1 @@
-{"platformName": "Android", "platformVersion": "11", "deviceName": "Pixel 3a XL", "noReset": "true", "newCommandTimeout": 800, "appPackage": "com.blueair.android", "appActivity": "com.blueair.android.activity.HomeActivity"}
+{"platformName": "Android", "platformVersion": "11", "deviceName": "Pixel 3a XL", "udid": "95QAX0G370", "noReset": "true", "newCommandTimeout": 800, "appPackage": "com.blueair.android", "appActivity": "com.blueair.android.activity.HomeActivity"}

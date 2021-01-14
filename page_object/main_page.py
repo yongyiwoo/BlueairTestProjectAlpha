@@ -342,6 +342,8 @@ class MainPage(BasePage):
                         return list_element[6]
                     else:
                         return None
+                else:
+                    return None
 
     def swipe_device_layout_left(self, device: str, **kwargs):
         device_info_dict = {}
@@ -386,10 +388,11 @@ class MainPage(BasePage):
                                 if device_layout_x <= device_name_x and device_layout_y <= device_name_y \
                                         and device_name_w <= device_layout_w and device_name_h <= device_layout_h:
                                     device_info_dict[device_name_text] = device_layout_element
-                                    # scroll the device_layout_element in the middle of the screen
-                                    screen_vertical_center = self.get_screen_size()[1] // 2
-                                    if 0.2 > float(device_layout_y / screen_vertical_center) or \
-                                            float(device_layout_y / screen_vertical_center) > 0.8:
+                                    # scroll the device_layout_element to the middle of the screen
+                                    screen_vertical_center = self.get_screen_size()[1]
+                                    print("float(device_layout_y / screen_vertical_center)", float(device_layout_y / screen_vertical_center))
+                                    if 0.1 > float(device_layout_y / screen_vertical_center) or \
+                                            float(device_layout_y / screen_vertical_center) > 0.9:
                                         start_position = (device_layout_x, device_layout_y)
                                         end_position = (device_layout_x, screen_vertical_center)
                                         self.scroll_screen(start_position, end_position)
@@ -560,10 +563,10 @@ class MainPage(BasePage):
                                     device_info_dict[device_name_text] = device_layout_element
                                     # print("device_name_element in device_layout_element")
                                     # scroll the device_layout_element to the middle of the screen y axis
-                                    screen_vertical_center = self.get_screen_size()[1] // 2
+                                    screen_vertical_center = self.get_screen_size()[1]
                                     # print("screen_vertical_center: ", device_layout_y / screen_vertical_center)
-                                    if 0.2 > float(device_layout_y / screen_vertical_center) or \
-                                            float(device_layout_y / screen_vertical_center) > 0.8:
+                                    if 0.1 > float(device_layout_y / screen_vertical_center) or \
+                                            float(device_layout_y / screen_vertical_center) > 0.9:
                                         start_position = (device_layout_x, device_layout_y)
                                         end_position = (device_layout_x, screen_vertical_center)
                                         self.scroll_screen(start_position, end_position)
@@ -610,7 +613,8 @@ class MainPage(BasePage):
         """
         after swiping the device layout to the right, press the standby mode button
         can add image analyze by returning the result (white image/blue image) later
-        :return:
+        :param press_status: True or False
+        :return: True or False
         """
         try:
             standby_mode_element = self.locate_element(self.swipe_standby_mode)
@@ -621,7 +625,7 @@ class MainPage(BasePage):
                 button_status = self.analyze_button_pixel_color(
                     self.crop_screenshot(self.get_screenshot64(), standby_mode_coordinates))
                 if button_status == press_status:
-                    print("pressed")
+                    #print("pressed")
                     break
             return True
         except exceptions.TimeoutException:
@@ -680,10 +684,17 @@ class MainPage(BasePage):
                     device_name_text = self.get_element_attribute(device_name_element, "text")
                     # print(device_name_text)
                     if device_name_text == device:
-                        self.tap_element(device_name_element)
-                        device_name_dict[device_name_text] = device_name_element
-                        device_name_tap_done = True
-                        break
+                        while True:
+                            self.tap_element(device_name_element)
+                            device_name_dict[device_name_text] = device_name_element
+                            device_name_tap_done = True
+                            try:
+                                # if the device name elements still can be seen, then go to the loop, tap the device name again
+                                self.locate_element_list(self.device_name)
+                                continue
+                            except exceptions.TimeoutException:
+                                # if the device name elements can not be found, then jump out the loop
+                                return device_name_dict
 
             if device_name_tap_done:
                 break

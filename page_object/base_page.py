@@ -101,6 +101,9 @@ class BasePage(object):
         """
         self.driver.lock()
 
+    def get_phone_settings(self):
+        return self.driver.desired_capabilities()
+
     @staticmethod
     def crop_screenshot(base64_image, coordinates):
         """
@@ -179,7 +182,7 @@ class BasePage(object):
         pressed status [85 40 0]
         unpressed status [255 255 255]
         :param image_array:
-        :return:
+        :return: True or False
         """
         # cv2.imwrite("image_array.jpg", image_array)
         image_height = image_array.shape[0]
