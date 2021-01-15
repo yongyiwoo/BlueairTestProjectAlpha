@@ -1,3 +1,3 @@
 # Blueair AutoTest Project
 
-This is a automation test project for Blueair app by using Appium, Pytest.
+This is an automation test project prototype for Blueair app by using Appium, Pytest and Allure.
