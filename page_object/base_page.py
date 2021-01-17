@@ -102,7 +102,22 @@ class BasePage(object):
         self.driver.lock()
 
     def get_phone_settings(self):
-        return self.driver.desired_capabilities()
+        """
+        For example:
+        {'platform': 'LINUX', 'webStorageEnabled': False, 'takesScreenshot': True, 'javascriptEnabled': True,
+        'databaseEnabled': False, 'networkConnectionEnabled': True, 'locationContextEnabled': False,
+        'warnings': {}, 'desired': {'platformName': 'Android', 'platformVersion': '11', 'deviceName': 'Pixel 3a XL',
+        'udid': '95QAX0G370', 'noReset': True, 'newCommandTimeout': 800, 'appPackage': 'com.blueair.android',
+        'appActivity': 'com.blueair.android.activity.HomeActivity'}, 'platformName': 'Android',
+        'platformVersion': '11', 'deviceName': '95QAX0G370', 'udid': '95QAX0G370', 'noReset': True,
+        'newCommandTimeout': 800, 'appPackage': 'com.blueair.android',
+        'appActivity': 'com.blueair.android.activity.HomeActivity', 'deviceUDID': '95QAX0G370',
+        'deviceApiLevel': 30, 'deviceScreenSize': '1080x2160', 'deviceScreenDensity': 446,
+        'deviceModel': 'Pixel 3a XL', 'deviceManufacturer': 'Google', 'pixelRatio': 2.7875001,
+        'statBarHeight': 67, 'viewportRect': {'left': 0, 'top': 67, 'width': 1080, 'height': 1959}}
+        :return:
+        """
+        return self.driver.desired_capabilities
 
     @staticmethod
     def crop_screenshot(base64_image, coordinates):
