@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, "./")
+
 from page_object.main_page import MainPage
 from page_object.dustmagnet_connection_pages import DustMagnetConnectionPages
 from page_object.dustmagnet_detail_pages import DustMagnetDetailPages
@@ -10,7 +13,7 @@ import datetime
 import re
 
 
-@allure.feature("test the main user interface")    #
+@allure.feature("test the main user interface")
 class TestMainPage(object):
     '''
     def test_auto_add_classic_device(self, common_driver):  # auto add classic
@@ -51,11 +54,9 @@ class TestMainPage(object):
         assert device_added_result == "g4_7710i"
     '''
 
-    #####################################################################################
-
     @allure.story("test onboard b4 device")
     @allure.severity(allure.severity_level.BLOCKER)
-    def test_onboard_b4_device(self, common_driver):   # add B4
+    def test_onboard_b4_device(self, common_driver):
         main_page = MainPage(common_driver)
         dustmagnet_connection_pages = DustMagnetConnectionPages(common_driver)
         main_page.device_connection_pages = dustmagnet_connection_pages
@@ -77,7 +78,7 @@ class TestMainPage(object):
         assert device_model_type == "DustMagnet 5210i"
         assert image_compare_result is True
         assert device_added_result == "b4_5210i"
-    '''
+
     @allure.story("test b4 online status")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_b4_online_status(self, common_driver):
@@ -97,7 +98,7 @@ class TestMainPage(object):
                 time.sleep(60)
             main_page.put_foreground()
         assert device_online_count == 3
-    '''
+
     @allure.story("test swipe device layout left manual to night mode")
     @allure.severity(allure.severity_level.NORMAL)
     def test_swipe_device_layout_left_manual_to_night_mode(self, common_driver):
@@ -168,12 +169,12 @@ class TestMainPage(object):
         main_page.tap_standby_mode(False)
         main_page.swipe_device_layout_right_back()
         device_mode = main_page.get_devices_info(device, "device_mode", "no", waiting_time=10)
-        #time.sleep(60)  # sensor warm up time
+        time.sleep(60)  # sensor warm up time
         assert device_mode == "Fan Speed 12%"
 
     @allure.story("test navigate to b4")
     @allure.severity(allure.severity_level.NORMAL)
-    def test_navigate_to_b4(self, common_driver):   # refactoring, sometimes the b4 device page doesn't show up
+    def test_navigate_to_b4(self, common_driver):
         device = "b4_5210i"
         main_page = MainPage(common_driver)
         # need to wait for 10 seconds to load the main UI
@@ -475,6 +476,6 @@ class TestMainPage(object):
         assert device is None
 
 if __name__ == "__main__":
-    pytest.main(["-v", "-s", "test_main_page.py"]) # use pytest test_main_page.py
+    pytest.main(["-v", "-s", "./test_case/test_main_page.py"]) # use pytest test_main_page.py
     # pytest -v -s --alluredir="/Users/yongyi/PycharmProjects/BlueairTestProjectAlpha/test_report" test_main_page.py
     # allure serve /Users/yongyi/PycharmProjects/BlueairTestProjectAlpha/test_report
