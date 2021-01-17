@@ -1,8 +1,8 @@
 import json
 import base64
 
-file_path = "../device/"
-image_path = "../image/"
+file_path = "./device/"
+image_path = "./image/"
 
 
 class FileManager(object):
