@@ -577,7 +577,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 start_position_percent = self.set_position_on_screen((75, 75))
                 end_position_percent = self.set_position_on_screen((50, 50))
                 self.scroll_screen(start_position_percent, end_position_percent)
-            # to stop the loop in 10 times
+            # to stop the loop in 3 times
             counter += 1
             if counter > 2:
                 break
@@ -1050,7 +1050,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             self.save_image(screenshot_base64, self.get_device_detail_info.__name__)
             return None
 
-    def delete_onboarded_device(self, confirm_delete: str):
+    def delete_onboarded_device(self, name: str, confirm_delete: str):
         try:
             delete_device_element = self.locate_element(self.delete_device)
             self.tap_element(delete_device_element)
@@ -1058,7 +1058,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 device_delete_ok_element = self.locate_element(self.device_confirm_ok)
                 self.tap_element(device_delete_ok_element)
                 main_page_device_list = page_object.main_page.MainPage(self.driver)
-                device_list = main_page_device_list.get_devices_info(attr="device_name", scroll="yes", waiting_time=60)
+                device_list = main_page_device_list.get_devices_info(device=name, attr="device_name", scroll="yes", waiting_time=60)
                 return device_list
             if confirm_delete == "cancel":
                 device_delete_cancel_element = self.locate_element(self.device_confirm_cancel)
