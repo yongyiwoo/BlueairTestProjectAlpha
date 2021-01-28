@@ -1,7 +1,7 @@
 import json
 import base64
 
-file_path = "./device/"
+file_path = "./config/"
 image_path = "./image/"
 
 
