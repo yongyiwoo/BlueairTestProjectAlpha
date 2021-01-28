@@ -5,7 +5,6 @@ from util.file_manager import FileManager
 import base64
 import numpy as np
 import cv2
-# from selenium.common import exceptions
 
 
 class BasePage(object):
@@ -60,8 +59,6 @@ class BasePage(object):
         :return: base64 string
         """
         screen_image = self.driver.get_screenshot_as_base64()
-        #screen_image_decode = base64.b64decode(screen_image)
-        #screen_image_array = np.frombuffer(screen_image_decode, np.uint8)
         return screen_image
 
     def navigate_back(self, n=1):
