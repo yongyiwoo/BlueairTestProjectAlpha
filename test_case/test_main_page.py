@@ -6,6 +6,7 @@ from page_object.dustmagnet_connection_pages import DustMagnetConnectionPages
 from page_object.dustmagnet_detail_pages import DustMagnetDetailPages
 from page_object.healthprotect_connection_pages import HealthProtectConnectionPages
 from page_object.classic_connection_pages import ClassicConnectionPages
+from util.file_manager import FileManager
 import pytest
 import allure
 import time
@@ -52,31 +53,24 @@ class TestMainPage(object):
         assert device_model_type == "HealthProtect 7710i"
         assert image_compare_result is True
         assert device_added_result == "g4_7710i"
-    '''
 
+    '''
     @allure.story("test onboard b4 device")
     @allure.severity(allure.severity_level.BLOCKER)
     def test_onboard_b4_device(self, common_driver):
         main_page = MainPage(common_driver)
         dustmagnet_connection_pages = DustMagnetConnectionPages(common_driver)
         main_page.device_connection_pages = dustmagnet_connection_pages
-        dustmagnet_select_page = main_page.add_new_device()
-        device_image_template = dustmagnet_select_page.get("DustMagnet_image")
-        find_device_info = dustmagnet_connection_pages.find_device_page()
-        if find_device_info is not None:
-            device_model_type = find_device_info[1]
-            device_image_small = find_device_info[2]
-        else:
-            device_model_type = None
-            device_image_small = None
-        image_compare_result = dustmagnet_connection_pages.compare_screenshot(device_image_template, device_image_small)
-        dustmagnet_connection_pages.connect_wifi_page("28116194", sleep_time=30)
+        main_page.add_new_device()
+        dustmagnet_connection_pages.find_device_page()
+        wifi_config_text = FileManager.read_file_lines("wifi.txt")[0]
+        ssid = FileManager.read_json_string(wifi_config_text)["ssid"]
+        password = FileManager.read_json_string(wifi_config_text)["password"]
+        dustmagnet_connection_pages.connect_wifi_page(ssid, password, sleep_time=10)
         dustmagnet_connection_pages.name_device_page("b4_5210i")
         time.sleep(30)  # firmware issue, the wifi module needs to restart
         device_added_result = dustmagnet_connection_pages.finalize_device_page("b4_5210i")
 
-        assert device_model_type == "DustMagnet 5210i"
-        assert image_compare_result is True
         assert device_added_result == "b4_5210i"
 
     @allure.story("test b4 online status")
@@ -467,13 +461,47 @@ class TestMainPage(object):
         # need to get the value from a config file
         assert info == {"Product Type": "DustMagnet 5210i", "MAC Address": "a8:03:2a:e5:8b:d4",
                         "Serial Number": "110590900001110110000142", "WiFi Firmware": "2.2.3", "MCU Firmware": "2.2.3"}
-    
+
     @allure.story("test b4 delete onboarded device")
     @allure.severity(allure.severity_level.NORMAL)
-    def test_be_device_delete(self, common_driver):
+    def test_b4_device_delete(self, common_driver):
         dustmagnet_detail_pages = DustMagnetDetailPages(common_driver)
-        device = dustmagnet_detail_pages.delete_onboarded_device("delete")
+        device = dustmagnet_detail_pages.delete_onboarded_device("b4_5210i", "delete")
         assert device is None
+
+    
+    @allure.story("test onboard b4 device restart the app before ssid")
+    @allure.severity(allure.severity_level.BLOCKER)
+    def test_onboard_b4_before_ssid(self, common_driver):
+        main_page = MainPage(common_driver)
+        dustmagnet_connection_pages = DustMagnetConnectionPages(common_driver)
+        main_page.device_connection_pages = dustmagnet_connection_pages
+        dustmagnet_select_page = main_page.add_new_device()
+        dustmagnet_select_page.get("DustMagnet_image")
+        dustmagnet_connection_pages.find_device_page()
+        dustmagnet_connection_pages.put_background()
+        time.sleep(30)   # wait for 30 seconds to restart the app
+        dustmagnet_connection_pages.put_foreground()
+        device_onboard_result = main_page.get_devices_info("b4_5210i")
+        assert device_onboard_result is None
+
+    @allure.story("test onboard b4 device restart the app after ssid")
+    @allure.severity(allure.severity_level.BLOCKER)
+    def test_onboard_b4_before_ssid(self, common_driver):
+        main_page = MainPage(common_driver)
+        dustmagnet_connection_pages = DustMagnetConnectionPages(common_driver)
+        main_page.device_connection_pages = dustmagnet_connection_pages
+        dustmagnet_select_page = main_page.add_new_device()
+        dustmagnet_select_page.get("DustMagnet_image")
+        dustmagnet_connection_pages.find_device_page()
+        dustmagnet_connection_pages.connect_wifi_page("28116194")
+        time.sleep(10)  # wait for 10 seconds to let the app react with the password
+        dustmagnet_connection_pages.put_background()
+        time.sleep(30)   # wait for 30 seconds to restart the app
+        dustmagnet_connection_pages.put_foreground()
+        device_onboard_result = main_page.get_devices_info("b4_5210i")
+        assert device_onboard_result is None
+
 
 if __name__ == "__main__":
     pytest.main(["-v", "-s", "./test_case/test_main_page.py"]) # use pytest test_main_page.py
