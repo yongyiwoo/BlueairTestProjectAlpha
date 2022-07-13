@@ -150,7 +150,7 @@ class DustMagnetConnectionPages(DeviceConnectionPages):
             #self.navigate_back(2)
             return False
 
-    def finalize_device_page(self, name):
+    def finalize_device_page(self, name):   # this method needs to move to the main_page
         """
         check if the onboarded device is in device list
         :param name: the onboarded device name

@@ -3,12 +3,13 @@ from appium.webdriver.common.mobileby import MobileBy
 from page_object.base_page import BasePage
 from selenium.common import exceptions
 import time
+from appium import webdriver
 
 
 class MainPage(BasePage):
     def __init__(self, common_driver):
         super(MainPage, self).__init__(common_driver)
-        self.hamburger_menu = (MobileBy.ACCESSIBILITY_ID, "Open navigation drawer")
+        self.side_menu = (MobileBy.ACCESSIBILITY_ID, "Open navigation drawer")
         # when user logged in, this button is not displayed
         self.sign_in = (MobileBy.ID, "com.blueair.android:id/action_signin")
         self.outdoor_fold = (MobileBy.ID, "com.blueair.android:id/button_collapse")
@@ -715,19 +716,19 @@ class MainPage(BasePage):
 
         return device_name_dict
 
-    def tap_hamburger_menu(self):
+    def tap_side_menu(self):
         """
         pressing the hamburger menu on the top left corner of the UI
         :return: a hamburger menu page object
         """
         try:
-            hamburger_menu_element = self.locate_element(self.hamburger_menu)
-            self.tap_element(hamburger_menu_element)
-            # hamburger_menu = HamburgerMenuPage(self.driver)
-            # return hamburger_menu
+            side_menu_element = self.locate_element(self.side_menu)
+            self.tap_element(side_menu_element)
+            # side_menu = SideMenuPage(self.driver)
+            # return side_menu
         except exceptions.TimeoutException:
             screenshot_base64 = self.get_screenshot64()
-            self.save_image(screenshot_base64, self.tap_hamburger_menu.__name__)
+            self.save_image(screenshot_base64, self.tap_side_menu.__name__)
             return
 
     def tap_user_login(self):
@@ -741,9 +742,37 @@ class MainPage(BasePage):
             # user_login = LoginPage(self.driver)
             # return user_login
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
-            self.save_image(screenshot_base64, self.tap_user_login.__name__)
-            return
+            # screenshot_base64 = self.get_screenshot64()
+            # self.save_image(screenshot_base64, self.tap_user_login.__name__)
+            return False
+
+    def check_login_status(self):
+        """
+        check if the sign in button appears
+        :return:
+        """
+        try:
+            user_login_element = self.locate_element(self.sign_in, waiting_time=20)
+            if type(user_login_element) is webdriver.WebElement:
+                return True
+            else:
+                return False
+        except exceptions.TimeoutException:
+            return False
+
+    def check_side_menu_status(self):
+        """
+        check if the side menu appears
+        :return:
+        """
+        try:
+            side_menu_element = self.locate_element(self.side_menu, waiting_time=20)
+            if type(side_menu_element) is webdriver.WebElement:
+                return True
+            else:
+                return False
+        except exceptions.TimeoutException:
+            return False
 
     def put_app_to_background(self, wait_time):
         """

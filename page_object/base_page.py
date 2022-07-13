@@ -98,6 +98,14 @@ class BasePage(object):
         """
         self.driver.lock()
 
+    def set_connection(self, connection_type:int):
+        """
+        set the connection to wifi, data, airplane mode and off
+        :param connection_type: None: 0, Airplane: 1, Wifi: 2, Data: 4, All: 6
+        :return:
+        """
+        self.driver.set_network_connection(connection_type)
+
     def get_phone_settings(self):
         """
         For example:

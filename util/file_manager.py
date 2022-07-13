@@ -1,8 +1,8 @@
 import json
 import base64
 
-file_path = "./config/"
-image_path = "./image/"
+file_path = "./PycharmProjects/BlueairTestProjectAlpha/config/"
+image_path = "./PycharmProjects/BlueairTestProjectAlpha/image/"
 
 
 class FileManager(object):

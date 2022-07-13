@@ -1,7 +1,11 @@
 import sys
 sys.path.insert(0, "./")
 
+
 from page_object.main_page import MainPage
+from page_object.login_page import LoginPage
+from page_object.forgot_password_page import ForgotPassword
+from page_object.side_menu_pages import SideMenuPages
 from page_object.dustmagnet_connection_pages import DustMagnetConnectionPages
 from page_object.dustmagnet_detail_pages import DustMagnetDetailPages
 from page_object.healthprotect_connection_pages import HealthProtectConnectionPages
@@ -14,7 +18,7 @@ import datetime
 import re
 
 
-@allure.feature("test the main user interface")
+@allure.feature("test the login feature")
 class TestMainPage(object):
     '''
     def test_auto_add_classic_device(self, common_driver):  # auto add classic
@@ -54,7 +58,7 @@ class TestMainPage(object):
         assert image_compare_result is True
         assert device_added_result == "g4_7710i"
 
-    '''
+
     @allure.story("test onboard b4 device")
     @allure.severity(allure.severity_level.BLOCKER)
     def test_onboard_b4_device(self, common_driver):
@@ -501,9 +505,532 @@ class TestMainPage(object):
         dustmagnet_connection_pages.put_foreground()
         device_onboard_result = main_page.get_devices_info("b4_5210i")
         assert device_onboard_result is None
+    '''
+    '''
+    @allure.story("01 test login with unregistered username and a password")
+    @allure.severity(allure.severity_level.BLOCKER)
+    def test_login_with_unregistered_username_and_a_password(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. input an unregistered username and a password and press log in button
+        4. wait for 20 seconds, to check the popup text
+        5. go back to the main page
+        result:
+        1. user has NOT logged in and still stay in login page
+        2. the app shows message: "There is no user with that email"
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.input_username_password_login("unregistered@mailinator.com", "Abcd1234.")
+
+        message_shows_up_result = login_pages.wait_until_unregistered_email_message_shows_up()
+        login_pages.close_login_page()
+        # sometimes checking needs more time, so to make sure back to the main page
+        if not main_page.check_side_menu_status():
+            login_pages.navigate_back()
+
+
+        assert message_shows_up_result == True
+
+    @allure.story("02 test login with invalid username and a password")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_login_with_invalid_username_and_a_password(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. input an invalid username and a password and press log in button
+        4. wait for 20 seconds, to check the popup text
+        5. go back to the main page
+        result:
+        1. user has NOT logged in and still stay in login page
+        2. the app shows message: "Email is invalid"
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.input_username_password_login("test@mailinator", "Abcd1234.")
+
+        message_shows_up_result = login_pages.wait_until_invalid_email_message_shows_up()
+        login_pages.close_login_page()
+        # sometimes checking needs more time, so to make sure back to the main page
+        if not main_page.check_side_menu_status():
+            login_pages.navigate_back()
+
+        assert message_shows_up_result == True
+
+    @allure.story("03 test login with blank username and a password")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_login_with_blank_username_and_a_password(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. input a blank username and a password and press log in button
+        4. go back to the main page
+        result:
+        1. user has NOT logged in and still stay in login page
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.input_username_password_login("", "Abcd1234.")
+
+        login_pages.close_login_page()
+
+        login_result = login_pages.main_page_login_status()
+
+        assert login_result == (True, True)
+    
+    @allure.story("04 test login with correct username and not complex password") # password is less than 6 characters
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_login_with_correct_username_and_not_complex_password(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. input a username and a password that less than 8 characters and press log in button
+        4. wait for 20 seconds, to check the popup text
+        5. go back to the main page
+        result:
+        1. user has NOT logged in and still stay in login page
+        2. the app shows message: "The password doesn’t meet complexity requirements"
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.input_username_password_login("test_202202@mailinator.com", "12345")
+
+        message_shows_up_result = login_pages.wait_until_complexity_password_message_shows_up()
+        login_pages.close_login_page()
+
+        assert message_shows_up_result == True
+
+    @allure.story("05 test login with correct username and incorrect password")
+    @allure.severity(allure.severity_level.BLOCKER)
+    def test_login_with_correct_username_and_incorrect_password(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. input a username and an incorrect password and press log in button
+        4. go back to the main page
+        result:
+        1. user has NOT logged in and still stay in login page
+        2. the app shows message: "Email is invalid"
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.input_username_password_login("test_202202@mailinator.com", "incorrect_password")
+
+        message_shows_up_result = login_pages.wait_until_invalid_password_message_shows_up()
+        login_pages.navigate_back()
+        # sometimes checking needs more time, so to make sure back to the main page
+        if not main_page.check_side_menu_status():
+            login_pages.navigate_back()
+
+        assert message_shows_up_result == True
+
+    @allure.story("06 test login without network")
+    @allure.severity(allure.severity_level.BLOCKER)
+    def test_login_without_network(self, common_driver):
+        """
+        steps:
+        1. turn off the phone wifi
+        2. in the app main page, press the sign in button
+        3. navigate to the login page
+        4. input a username and an incorrect password and press log in button
+        5. go back to the main page
+        result:
+        1. user has NOT logged in and still stay in login page
+        2. the app shows message: "The Internet connection appears to be offline."
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.set_connection(0)
+        main_page.tap_user_login()
+        login_pages.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
+
+        message_shows_up_result = login_pages.wait_until_connection_lost_message_shows_up()
+        login_pages.close_login_page()
+        main_page.set_connection(6)
+        # sometimes checking needs more time, so to make sure back to the main page
+        if not main_page.check_side_menu_status():
+            login_pages.navigate_back()
+
+        assert message_shows_up_result == True
+
+    @allure.story("07 test login with correct username and blank password")
+    @allure.severity(allure.severity_level.BLOCKER)
+    def test_login_with_correct_username_and_blank_password(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. input a username and a blank password and press log in button
+        4. go back to the main page
+        result:
+        1. user has NOT logged in and still stay in login page
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.input_username_password_login("test_202202@mailinator.com", "")
+
+        login_pages.close_login_page()
+
+        login_result = login_pages.main_page_login_status()
+
+        assert login_result == (True, True)
+    
+    @allure.story("08 test login with correct username and password")
+    @allure.severity(allure.severity_level.BLOCKER)
+    def test_login_with_correct_username_and_password(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. input the correct username and password and press log in button
+        4. wait for 20 seconds
+        result:
+        1. user has logged in
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass if sign in button disappeared
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
+
+        login_result = login_pages.main_page_login_status()
+
+        assert login_result == (True, False)
+
+    @allure.story("09 test log out with app")
+    @allure.severity(allure.severity_level.BLOCKER)
+    def test_log_out_with_app(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press side menu
+        2. in the side menu, press log out
+        3. in the popup window, press yes
+        result:
+        1. the app logs out
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, terms of service shows
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_log_out()
+        side_menu_pages.close_side_menu()
+
+        log_out_result = login_pages.main_page_login_status()
+
+        assert log_out_result == (True, True)
+
+    @allure.story("10 test login with facebook account")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_login_with_facebook_account(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press sign in button
+        2. navigate to the login page
+        3. press continue with facebook button
+        result:
+        1. user has logged in with preset facebook account
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, if sign in button disappeared
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_continue_with_facebook()
+
+        login_result = login_pages.main_page_login_status()
+        # sometimes facebook has some issues and cannot login, so to make sure back to the main page
+        if not main_page.check_side_menu_status():
+            login_pages.navigate_back()
+
+        assert login_result == (True, False)
+
+    @allure.story("11 test log out with facebook")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_log_out_with_facebook(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press side menu
+        2. in the side menu, press log out
+        3. in the popup window, press yes
+        result:
+        1. the app logs out
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, terms of service shows
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_log_out()
+        side_menu_pages.close_side_menu()
+
+        log_out_result = login_pages.main_page_login_status()
+
+        assert log_out_result == (True, True)
+
+    @allure.story("12 test login with google account")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_login_with_google_account(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press sign in button
+        2. navigate to the login page
+        3. press continue with google button
+        4. then press google account
+        result:
+        1. user has logged in with google account
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, if sign in button disappeared
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_continue_with_google()
+
+        login_result = login_pages.main_page_login_status()
+        # sometimes google has some issues and cannot login, so to make sure back to the main page
+        if not main_page.check_side_menu_status():
+            login_pages.navigate_back()
+
+        assert login_result == (True, False)
+
+    @allure.story("13 test log out with google")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_log_out_with_google(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press side menu
+        2. in the side menu, press log out
+        3. in the popup window, press yes
+        result:
+        1. the app logs out
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, terms of service shows
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_log_out()
+        side_menu_pages.close_side_menu()
+
+        log_out_result = login_pages.main_page_login_status()
+
+        assert log_out_result == (True, True)
+
+    @allure.story("14 test terms of service")
+    @allure.severity(allure.severity_level.MINOR)
+    def test_terms_of_service(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press sign in button
+        2. navigate to the login page
+        3. press terms of service
+        4. go back to the main page
+        result:
+        1. the app shows terms of services
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, terms of service shows
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        terms_of_service_result = login_pages.check_terms_of_service()
+
+        login_pages.navigate_back() # navigate back to login page
+        login_pages.navigate_back() # navigate back to main page
+
+        assert terms_of_service_result == True
+
+    @allure.story("15 test privacy policy")
+    @allure.severity(allure.severity_level.MINOR)
+    def test_privacy_policy(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press sign in button
+        2. navigate to the login page
+        3. press privacy policy
+        4. go back to the main page
+        result:
+        1. the app shows privacy policy
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, privacy policy shows
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+
+        main_page.tap_user_login()
+        privacy_policy_result = login_pages.check_privacy_policy()
+
+        login_pages.navigate_back()  # navigate back to login page
+        login_pages.navigate_back()  # navigate back to main page
+
+        assert privacy_policy_result == True
+
+    '''
+    ####################################################################################################
+    #                                    forgot password test cases                                    #
+    ####################################################################################################
+    @allure.story("16 test forgot password reset success")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_forgot_password_reset_success(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the forgot password link
+        4. navigate to the forgot password page
+        5. input the correct username and press reset password button
+        4. wait for 20 seconds, check the popup text
+        5. go back to the login page
+        result:
+        1. the app goes back to login page
+        2. the app shows message: "A password reset link was sent to your email"
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        forgot_password_page = ForgotPassword(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_forgot_password()
+        forgot_password_page.input_username_reset_password("test_202202@mailinator.com")
+
+        message_shows_up_result = forgot_password_page.wait_until_password_reset_message_shows_up()
+        login_page_shows_up_result = login_pages.check_login_page_status()
+
+        login_pages.navigate_back()
+
+        assert message_shows_up_result, login_page_shows_up_result == (True, True)
+
+    '''
+    @allure.story("17 test forgot password with invalid username")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_forgot_password_with_invalid_username(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the forgot password link
+        4. navigate to the forgot password page
+        5. input the invalid username and press reset password button
+        4. check the popup text
+        5. go back to the login page
+        result:
+        1. the app goes back to main page
+        2. the app shows message: "Email is invalid"
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        forgot_password_page = ForgotPassword(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_forgot_password()
+        forgot_password_page.input_username_reset_password("test_202202@mailinator")
+
+        message_shows_up_result = forgot_password_page.wait_until_invalid_email_message_shows_up()
+
+        forgot_password_page.close_forgot_password_page_use_close_button()
+        main_page_status_result = main_page.check_login_status()
+
+        assert message_shows_up_result, main_page_status_result == (True, True)
+
+    @allure.story("18 test forgot password with unregistered username")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_forgot_password_with_unregistered_username(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the forgot password link
+        4. navigate to the forgot password page
+        5. input an unregistered username and press reset password button
+        4. check the popup text
+        5. go back to the login page
+        result:
+        1. the app goes back to main page
+        2. the app shows message: "There is no user with that email"
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        forgot_password_page = ForgotPassword(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_forgot_password()
+        forgot_password_page.input_username_reset_password("test_202202@mailinator")
+
+        message_shows_up_result = forgot_password_page.wait_until_invalid_email_message_shows_up()
+
+        forgot_password_page.close_forgot_password_page_use_back_button()
+        login_page_status_result = login_pages.check_login_page_status()
+
+        assert message_shows_up_result, login_page_status_result == (True, True)
+    '''
+
+
+
+
+    # register
+    # login page press "X"
 
 
 if __name__ == "__main__":
     pytest.main(["-v", "-s", "./test_case/test_main_page.py"]) # use pytest test_main_page.py
-    # pytest -v -s --alluredir="/Users/yongyi/PycharmProjects/BlueairTestProjectAlpha/test_report" test_main_page.py
+    # pytest -v -s --alluredir="/Users/yongyi/PycharmProjects/BlueairTestProjectAlpha/test_report" test_case/test_main_page.py
     # allure serve /Users/yongyi/PycharmProjects/BlueairTestProjectAlpha/test_report
