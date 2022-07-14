@@ -6,6 +6,6 @@ class ServerInfo(object):
         self.port = port
 
     def start_server(self):
-        print("start server")
+        #print("start server")
         service = AppiumService()
         service.start(args=["--address", self.host, "--port", self.port, "--base-path", "/wd/hub"])
