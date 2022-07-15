@@ -1033,5 +1033,5 @@ class TestMainPage(object):
 
 if __name__ == "__main__":
     pytest.main(["-v", "-s", "--alluredir","./test_result"]) # use pytest test_main_page.py
-    os.system("allure generate ./test_result -o ./test_report")
+    # os.system("allure generate ./test_result -o ./test_report")
     # allure serve /Users/yongyi/PycharmProjects/BlueairTestProjectAlpha/test_report
