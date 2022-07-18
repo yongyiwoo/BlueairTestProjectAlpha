@@ -73,6 +73,21 @@ class ForgotPassword(BasePage):
         except exceptions.TimeoutException:
             return False
 
+    def wait_until_check_internet_connection_message_shows_up(self):
+        """
+        check if the check internet connection message shows up
+        :return: True, if the message shows up
+        """
+        try:
+            popup_text_element = self.locate_element(self.popup_text, waiting_time=20)
+            connection_lost= self.get_element_attribute(popup_text_element, "text")
+            if connection_lost == "Please check your internet connection":
+                return True
+            else:
+                return False # The popup text does not match
+        except exceptions.TimeoutException:
+            return False
+
     def close_forgot_password_page_use_close_button(self):
         """
         close the forgot password page by using close (X) button

@@ -923,6 +923,7 @@ class TestMainPage(object):
     ####################################################################################################
     #                                    forgot password test cases                                    #
     ####################################################################################################
+    '''
     @allure.story("16 test forgot password reset success")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_forgot_password_reset_success(self, common_driver):
@@ -956,7 +957,6 @@ class TestMainPage(object):
 
         assert message_shows_up_result, login_page_shows_up_result == (True, True)
 
-    '''
     @allure.story("17 test forgot password with invalid username")
     @allure.severity(allure.severity_level.NORMAL)
     def test_forgot_password_with_invalid_username(self, common_driver):
@@ -1003,8 +1003,8 @@ class TestMainPage(object):
         4. check the popup text
         5. go back to the login page
         result:
-        1. the app goes back to main page
-        2. the app shows message: "There is no user with that email"
+        1. the app shows message: "There is no user with that email"
+        2. the app goes back to login page
         :param common_driver:
         :return:
         """
@@ -1024,7 +1024,41 @@ class TestMainPage(object):
         assert message_shows_up_result, login_page_status_result == (True, True)
     '''
 
+    @allure.story("19 test forgot password without network")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_forgot_password_without_network(self, common_driver):
+        """
+        steps:
+        1. turn off the phone wifi
+        2. in the app main page, press the sign in button
+        3. navigate to the login page
+        4. press the forgot password link
+        5. input a valid username and press reset password button
+        6. check out the popup text
+        5. go back to the login page
+        result:
+        1. the app shows message: "Please check your internet connection"
+        2. the app goes back to login page
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        forgot_password_page = ForgotPassword(common_driver)
 
+        main_page.set_connection(0)
+        main_page.tap_user_login()
+        login_pages.tap_forgot_password()
+        forgot_password_page.input_username_reset_password("test_202202@mailinator.com")
+
+        message_shows_up_result = forgot_password_page.wait_until_check_internet_connection_message_shows_up()
+        login_pages.close_login_page()
+        main_page.set_connection(6)
+        # sometimes checking needs more time, so to make sure back to the main page
+        if not main_page.check_side_menu_status():
+            login_pages.navigate_back()
+
+        assert message_shows_up_result == True
 
 
     # register
