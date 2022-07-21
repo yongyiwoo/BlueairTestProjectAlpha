@@ -1064,7 +1064,46 @@ class TestMainPage(object):
     ####################################################################################################
     #                                        register test cases                                       #
     ####################################################################################################
-    @allure.story("20 test register new user")
+    @allure.story("20 test register without filling required fields")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_register_without_filling_required_fields(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the register link
+        4. navigate to the register page
+        5. leave the required fields blank and tick the required checkboxes and press register button
+        6. wait for several seconds, check if the error messages show up
+        7. close the register page and back to the main page
+        result:
+        1. the error messages show up in register page
+        2. the app goes back to the main page with Sign in link
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        register_page.input_required_fields_register("", "", "", "", "", "", True, False, False, True)
+
+        first_name_error_message_result = register_page.check_enter_your_first_name_message_shows_up()
+        last_name_error_message_result = register_page.check_enter_your_last_name_message_shows_up()
+        email_error_message_result = register_page.check_enter_your_email_message_shows_up()
+        password_error_message_result = register_page.check_enter_your_email_message_shows_up()
+
+        register_page.close_register()
+        login_button_result = main_page.check_login_status()
+
+
+        register_result = (first_name_error_message_result, last_name_error_message_result, email_error_message_result,
+                           password_error_message_result, login_button_result)
+        assert register_result == (True, True, True, True, True)
+    '''
+    @allure.story("21 test register new user")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_new_user(self, common_driver):
         """
@@ -1074,7 +1113,7 @@ class TestMainPage(object):
         3. in the login page, press the register link
         4. navigate to the register page
         5. input all the fields and tick all the checkboxes and press register button
-        6. wait for 20 seconds, check if the registration is successful (checking profile in side menu)
+        6. wait for several seconds, check if the registration is successful (checking profile in side menu)
         7. log out
         result:
         1. the app accepts the new registration
@@ -1090,7 +1129,7 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.tap_register()
         date_time = datetime.today().strftime('%Y%m%d%H%M%S')
-        register_page.input_required_fields_register("Firstname", "Lastname", "test_"+date_time+"@mailinator.com",
+        register_page.input_required_fields_register("Firstname", "Lastname", "test_" + date_time + "@mailinator.com",
                                                      "1234567890", "Abcd1234.", "Abcd1234.", True, True, True, True)
 
         login_button_result = main_page.check_login_status()
@@ -1099,12 +1138,12 @@ class TestMainPage(object):
         main_page.tap_side_menu()
         side_menu_pages.tap_profile()
         profile_email_text = side_menu_pages.get_profile_email()
-        if profile_email_text == "test_"+date_time+"@mailinator.com":
+        if profile_email_text == "test_" + date_time + "@mailinator.com":
             profile_email_result = True
         else:
             profile_email_result = False
-        #profile_first_name_result = side_menu_pages.get_profile_first_name()
-        #profile_last_name_result = side_menu_pages.get_profile_last_name()
+        # profile_first_name_result = side_menu_pages.get_profile_first_name()
+        # profile_last_name_result = side_menu_pages.get_profile_last_name()
         profile_phone_number_text = side_menu_pages.get_profile_phone_number()
         if profile_phone_number_text == "1234567890":
             profile_phone_number_result = True
@@ -1120,11 +1159,7 @@ class TestMainPage(object):
         register_result = (login_button_result, side_menu_result, profile_email_result, profile_phone_number_result,
                            log_out_button_result)
         assert register_result == (False, True, True, True, True)
-
-
-
-
-
+    '''
 
 
 

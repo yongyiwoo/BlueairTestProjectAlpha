@@ -57,8 +57,7 @@ class SideMenuPages(BasePage):
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Profile":
                     return True
-                else:
-                    return False
+            return False
         except exceptions.TimeoutException:
             return False
 
@@ -73,8 +72,7 @@ class SideMenuPages(BasePage):
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Voice Assistants":
                     return True
-                else:
-                    return False
+            return False
         except exceptions.TimeoutException:
             return False
 

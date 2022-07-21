@@ -7,7 +7,7 @@ import page_object.login_page
 class RegisterPage(BasePage):
     def __init__(self, common_driver):
         super(RegisterPage, self).__init__(common_driver)
-        self.cose = (MobileBy.ID, "com.blueair.android:id/btnClose")
+        self.close = (MobileBy.ID, "com.blueair.android:id/btnClose")
         self.back = (MobileBy.ID, "com.blueair.android:id/btnBack")
         self.first_name = (MobileBy.ID, "com.blueair.android:id/firstName")
         self.last_name = (MobileBy.ID, "com.blueair.android:id/lastName")
@@ -24,6 +24,7 @@ class RegisterPage(BasePage):
         self.privacy_policy = (MobileBy.ID, "com.blueair.android:id/txtPrivacy")
         self.privacy_notice = (MobileBy.ID, "com.blueair.android:id/info_container")
         self.register = (MobileBy.ID, "com.blueair.android:id/btnRegister")
+        self.text_input_error = (MobileBy.ID, "com.blueair.android:id/textinput_error")
 
     def input_required_fields_register(self, first_name, last_name, email, phone_number, password, confirm_password,
                                        age_limit: bool, blueair_subscription: bool, unilever_data_share: bool,
@@ -36,31 +37,37 @@ class RegisterPage(BasePage):
         :param phone_number:
         :param password:
         :param confirm_password:
-        :param age_limit:
-        :param blueair_subscription:
-        :param unilever_data_share:
-        :param agree_documents:
+        :param age_limit: tick, if True, un-tick, if False
+        :param blueair_subscription: tick, if True, un-tick, if False
+        :param unilever_data_share: tick, if True, un-tick, if False
+        :param agree_documents: tick, if True, un-tick, if False
         :return:
         """
         try:
-            first_name_element = self.locate_element(self.first_name)
-            self.tap_element(first_name_element)
-            self.set_element_text(first_name_element, first_name)
-            last_name_element = self.locate_element(self.last_name)
-            self.tap_element(last_name_element)
-            self.set_element_text(last_name_element, last_name)
-            email_element = self.locate_element(self.email)
-            self.tap_element(email_element)
-            self.set_element_text(email_element, email)
-            phone_number_element = self.locate_element(self.phone_number)
-            self.tap_element(phone_number_element)
-            self.set_element_text(phone_number_element, phone_number)
-            password_element = self.locate_element(self.password)
-            self.tap_element(password_element)
-            self.set_element_text(password_element, password)
-            confirm_password_element = self.locate_element(self.confirm_password)
-            self.tap_element(confirm_password_element)
-            self.set_element_text(confirm_password_element, confirm_password)
+            if first_name != "":
+                first_name_element = self.locate_element(self.first_name)
+                self.tap_element(first_name_element)
+                self.set_element_text(first_name_element, first_name)
+            if last_name != "":
+                last_name_element = self.locate_element(self.last_name)
+                self.tap_element(last_name_element)
+                self.set_element_text(last_name_element, last_name)
+            if email != "":
+                email_element = self.locate_element(self.email)
+                self.tap_element(email_element)
+                self.set_element_text(email_element, email)
+            if phone_number != "":
+                phone_number_element = self.locate_element(self.phone_number)
+                self.tap_element(phone_number_element)
+                self.set_element_text(phone_number_element, phone_number)
+            if password != "":
+                password_element = self.locate_element(self.password)
+                self.tap_element(password_element)
+                self.set_element_text(password_element, password)
+            if confirm_password != "":
+                confirm_password_element = self.locate_element(self.confirm_password)
+                self.tap_element(confirm_password_element)
+                self.set_element_text(confirm_password_element, confirm_password)
         except exceptions.TimeoutException:
             pass
 
@@ -82,12 +89,12 @@ class RegisterPage(BasePage):
             # swipe 2 times to find the subscription element
             for _ in range(2):
                 try:
-                    print("blueair subscription tap")
+                    #print("blueair subscription tap")
                     blueair_subscription_element = self.locate_element(self.blueair_subscription)
                     self.tap_element(blueair_subscription_element)
                     break
                 except exceptions.TimeoutException:
-                    print("blueair subscription scroll")
+                    #print("blueair subscription scroll")
                     start_position_percent = self.set_position_on_screen((75, 75))
                     end_position_percent = self.set_position_on_screen((25, 25))
                     self.scroll_screen(start_position_percent, end_position_percent)
@@ -96,12 +103,12 @@ class RegisterPage(BasePage):
             # swipe 2 times to find the data share element
             for _ in range(2):
                 try:
-                    print("unilever data share tap")
+                    #print("unilever data share tap")
                     unilever_data_share_element = self.locate_element(self.unilever_data_share)
                     self.tap_element(unilever_data_share_element)
                     break
                 except exceptions.TimeoutException:
-                    print("unilever data share scroll")
+                    #print("unilever data share scroll")
                     start_position_percent = self.set_position_on_screen((75, 75))
                     end_position_percent = self.set_position_on_screen((25, 25))
                     self.scroll_screen(start_position_percent, end_position_percent)
@@ -110,12 +117,12 @@ class RegisterPage(BasePage):
             # swipe 2 times to find agree documents element
             for _ in range(2):
                 try:
-                    print("agree documents tap")
+                    #print("agree documents tap")
                     agree_documents_element = self.locate_element(self.agree_documents)
                     self.tap_element(agree_documents_element)
                     break
                 except exceptions.TimeoutException:
-                    print("agree documents scroll")
+                    #print("agree documents scroll")
                     start_position_percent = self.set_position_on_screen((75, 75))
                     end_position_percent = self.set_position_on_screen((25, 25))
                     self.scroll_screen(start_position_percent, end_position_percent)
@@ -126,3 +133,90 @@ class RegisterPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
+    def close_register(self):
+        try:
+            close_register_element = self.locate_element(self.close)
+            self.tap_element(close_register_element)
+        except exceptions.TimeoutException:
+            return False
+
+    def check_enter_your_first_name_message_shows_up(self):
+        """
+        check if Enter your first name message shows up
+        :return: True, if appears, False, if disappears
+        """
+        try:
+            # scroll up 2 times (if needed) to find text input error element
+            for _ in range(2):
+                text_input_error_elements = self.locate_element_list(self.text_input_error)
+                for text_input_error_element in text_input_error_elements:
+                    text_input_error_text = self.get_element_attribute(text_input_error_element, "text")
+                    if text_input_error_text == "Enter your first name":
+                        return True
+                start_position_percent = self.set_position_on_screen((25, 25))
+                end_position_percent = self.set_position_on_screen((75, 75))
+                self.scroll_screen(start_position_percent, end_position_percent)
+            return False
+        except exceptions.TimeoutException:
+            return False
+
+    def check_enter_your_last_name_message_shows_up(self):
+        """
+        check if Enter your last name message shows up
+        :return: True, if appears, False, if disappears
+        """
+        try:
+            # scroll up 2 times (if needed) to find text input error element
+            for _ in range(2):
+                text_input_error_elements = self.locate_element_list(self.text_input_error)
+                for text_input_error_element in text_input_error_elements:
+                    text_input_error_text = self.get_element_attribute(text_input_error_element, "text")
+                    if text_input_error_text == "Enter your last name":
+                        return True
+                start_position_percent = self.set_position_on_screen((25, 25))
+                end_position_percent = self.set_position_on_screen((75, 75))
+                self.scroll_screen(start_position_percent, end_position_percent)
+
+            return False
+        except exceptions.TimeoutException:
+            return False
+
+    def check_enter_your_email_message_shows_up(self):
+        """
+        check if Enter your email message shows up
+        :return: True, if appears, False, if disappears
+        """
+        try:
+            # scroll up 2 times (if needed) to find text input error element
+            for _ in range(2):
+                text_input_error_elements = self.locate_element_list(self.text_input_error)
+                for text_input_error_element in text_input_error_elements:
+                    text_input_error__text = self.get_element_attribute(text_input_error_element, "text")
+                    if text_input_error__text == "Enter your email":
+                        return True
+                start_position_percent = self.set_position_on_screen((25, 25))
+                end_position_percent = self.set_position_on_screen((75, 75))
+                self.scroll_screen(start_position_percent, end_position_percent)
+            return False
+        except exceptions.TimeoutException:
+            return False
+
+    def check_enter_your_password_message_shows_up(self):
+        """
+        check if Enter your password message shows up
+        :return: True, if appears, False, if disappears
+        """
+        try:
+            # scroll up 2 times (if needed) to find text input error element
+            for _ in range(2):
+                text_input_error_elements = self.locate_element_list(self.text_input_error)
+                for text_input_error_element in text_input_error_elements:
+                    text_input_error__text = self.get_element_attribute(text_input_error_element, "text")
+                    if text_input_error__text == "Enter your password":
+                        return True
+                start_position_percent = self.set_position_on_screen((25, 25))
+                end_position_percent = self.set_position_on_screen((75, 75))
+                self.scroll_screen(start_position_percent, end_position_percent)
+            return False
+        except exceptions.TimeoutException:
+            return False
