@@ -3,9 +3,9 @@ from page_object.base_page import BasePage
 from selenium.common import exceptions
 
 
-class ForgotPassword(BasePage):
+class ForgotPasswordPage(BasePage):
     def __init__(self, common_driver):
-        super(ForgotPassword, self).__init__(common_driver)
+        super(ForgotPasswordPage, self).__init__(common_driver)
         self.back = (MobileBy.ID, "com.blueair.android:id/btnBack")
         self.close = (MobileBy.ID, "com.blueair.android:id/btnClose")
         self.email = (MobileBy.ID, "com.blueair.android:id/email")

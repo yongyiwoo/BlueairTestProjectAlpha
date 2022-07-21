@@ -5,7 +5,8 @@ sys.path.insert(0, "./")
 
 from page_object.main_page import MainPage
 from page_object.login_page import LoginPage
-from page_object.forgot_password_page import ForgotPassword
+from page_object.forgot_password_page import ForgotPasswordPage
+from page_object.register_page import RegisterPage
 from page_object.side_menu_pages import SideMenuPages
 from page_object.dustmagnet_connection_pages import DustMagnetConnectionPages
 from page_object.dustmagnet_detail_pages import DustMagnetDetailPages
@@ -15,7 +16,7 @@ from util.file_manager import FileManager
 import pytest
 import allure
 import time
-import datetime
+from datetime import datetime
 import re
 
 
@@ -1022,7 +1023,6 @@ class TestMainPage(object):
         login_page_status_result = login_pages.check_login_page_status()
 
         assert message_shows_up_result, login_page_status_result == (True, True)
-    '''
 
     @allure.story("19 test forgot password without network")
     @allure.severity(allure.severity_level.CRITICAL)
@@ -1059,6 +1059,76 @@ class TestMainPage(object):
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
+
+    '''
+    ####################################################################################################
+    #                                        register test cases                                       #
+    ####################################################################################################
+    @allure.story("20 test register new user")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_register_new_user(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the register link
+        4. navigate to the register page
+        5. input all the fields and tick all the checkboxes and press register button
+        6. wait for 20 seconds, check if the registration is successful (checking profile in side menu)
+        7. log out
+        result:
+        1. the app accepts the new registration
+        2. the app goes back to the main page with logged in
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        date_time = datetime.today().strftime('%Y%m%d%H%M%S')
+        register_page.input_required_fields_register("Firstname", "Lastname", "test_"+date_time+"@mailinator.com",
+                                                     "1234567890", "Abcd1234.", "Abcd1234.", True, True, True, True)
+
+        login_button_result = main_page.check_login_status()
+        side_menu_result = main_page.check_side_menu_status()
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_profile()
+        profile_email_text = side_menu_pages.get_profile_email()
+        if profile_email_text == "test_"+date_time+"@mailinator.com":
+            profile_email_result = True
+        else:
+            profile_email_result = False
+        #profile_first_name_result = side_menu_pages.get_profile_first_name()
+        #profile_last_name_result = side_menu_pages.get_profile_last_name()
+        profile_phone_number_text = side_menu_pages.get_profile_phone_number()
+        if profile_phone_number_text == "1234567890":
+            profile_phone_number_result = True
+        else:
+            profile_phone_number_result = False
+        side_menu_pages.navigate_back()
+
+        main_page.tap_side_menu()
+        log_out_button_result = side_menu_pages.check_log_out_status()
+        side_menu_pages.tap_log_out()
+        side_menu_pages.close_side_menu()
+
+        register_result = (login_button_result, side_menu_result, profile_email_result, profile_phone_number_result,
+                           log_out_button_result)
+        assert register_result == (False, True, True, True, True)
+
+
+
+
+
+
+
+
+
 
 
     # register

@@ -749,7 +749,7 @@ class MainPage(BasePage):
     def check_login_status(self):
         """
         check if the sign in button appears
-        :return:
+        :return: True, if appears, False, if disappears
         """
         try:
             user_login_element = self.locate_element(self.sign_in, waiting_time=20)
