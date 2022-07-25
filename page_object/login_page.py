@@ -57,7 +57,7 @@ class LoginPage(BasePage):
         except exceptions.TimeoutException:
             return False # There is no Sign in button
 
-    def wait_until_unregistered_email_message_shows_up(self):
+    def wait_until_unregistered_email_message_appears(self):
         """
         check if the unregistered email message shows up
         :return: True, if the message shows up
@@ -72,7 +72,7 @@ class LoginPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def wait_until_invalid_email_message_shows_up(self):
+    def wait_until_invalid_email_message_appears(self):
         """
         check if the invalid email message shows up
         :return: True, if the message shows up
@@ -87,7 +87,7 @@ class LoginPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def wait_until_complexity_password_message_shows_up(self):
+    def wait_until_complexity_password_message_appears(self):
         """
         check if the meet complexity password message shows up
         :return: True, if the message shows up
@@ -102,7 +102,7 @@ class LoginPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def wait_until_invalid_password_message_shows_up(self):
+    def wait_until_invalid_password_message_appears(self):
         """
         check if the invalid password message shows up
         :return: True, if the message shows up
@@ -117,7 +117,7 @@ class LoginPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def wait_until_connection_lost_message_shows_up(self):
+    def wait_until_connection_lost_message_appears(self):
         """
         check if the connection lost message shows up
         :return: True, if the message shows up

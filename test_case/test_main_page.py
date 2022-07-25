@@ -508,6 +508,10 @@ class TestMainPage(object):
         device_onboard_result = main_page.get_devices_info("b4_5210i")
         assert device_onboard_result is None
     '''
+
+    ####################################################################################################
+    #                                          login test cases                                        #
+    ####################################################################################################
     '''
     @allure.story("01 test login with unregistered username and a password")
     @allure.severity(allure.severity_level.BLOCKER)
@@ -531,7 +535,7 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.input_username_password_login("unregistered@mailinator.com", "Abcd1234.")
 
-        message_shows_up_result = login_pages.wait_until_unregistered_email_message_shows_up()
+        message_shows_up_result = login_pages.wait_until_unregistered_email_message_appears()
         login_pages.close_login_page()
         # sometimes checking needs more time, so to make sure back to the main page
         if not main_page.check_side_menu_status():
@@ -562,7 +566,7 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.input_username_password_login("test@mailinator", "Abcd1234.")
 
-        message_shows_up_result = login_pages.wait_until_invalid_email_message_shows_up()
+        message_shows_up_result = login_pages.wait_until_invalid_email_message_appears()
         login_pages.close_login_page()
         # sometimes checking needs more time, so to make sure back to the main page
         if not main_page.check_side_menu_status():
@@ -618,7 +622,7 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.input_username_password_login("test_202202@mailinator.com", "12345")
 
-        message_shows_up_result = login_pages.wait_until_complexity_password_message_shows_up()
+        message_shows_up_result = login_pages.wait_until_complexity_password_message_appears()
         login_pages.close_login_page()
 
         assert message_shows_up_result == True
@@ -644,7 +648,7 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.input_username_password_login("test_202202@mailinator.com", "incorrect_password")
 
-        message_shows_up_result = login_pages.wait_until_invalid_password_message_shows_up()
+        message_shows_up_result = login_pages.wait_until_invalid_password_message_appears()
         login_pages.navigate_back()
         # sometimes checking needs more time, so to make sure back to the main page
         if not main_page.check_side_menu_status():
@@ -675,7 +679,7 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
 
-        message_shows_up_result = login_pages.wait_until_connection_lost_message_shows_up()
+        message_shows_up_result = login_pages.wait_until_connection_lost_message_appears()
         login_pages.close_login_page()
         main_page.set_connection(6)
         # sometimes checking needs more time, so to make sure back to the main page
@@ -984,7 +988,7 @@ class TestMainPage(object):
         login_pages.tap_forgot_password()
         forgot_password_page.input_username_reset_password("test_202202@mailinator")
 
-        message_shows_up_result = forgot_password_page.wait_until_invalid_email_message_shows_up()
+        message_shows_up_result = forgot_password_page.wait_until_invalid_email_message_appears()
 
         forgot_password_page.close_forgot_password_page_use_close_button()
         main_page_status_result = main_page.check_login_status()
@@ -1017,7 +1021,7 @@ class TestMainPage(object):
         login_pages.tap_forgot_password()
         forgot_password_page.input_username_reset_password("test_202202@mailinator")
 
-        message_shows_up_result = forgot_password_page.wait_until_invalid_email_message_shows_up()
+        message_shows_up_result = forgot_password_page.wait_until_invalid_email_message_appears()
 
         forgot_password_page.close_forgot_password_page_use_back_button()
         login_page_status_result = login_pages.check_login_page_status()
@@ -1064,6 +1068,7 @@ class TestMainPage(object):
     ####################################################################################################
     #                                        register test cases                                       #
     ####################################################################################################
+    '''
     @allure.story("20 test register without filling required fields")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_without_filling_required_fields(self, common_driver):
@@ -1090,20 +1095,198 @@ class TestMainPage(object):
         login_pages.tap_register()
         register_page.input_required_fields_register("", "", "", "", "", "", True, False, False, True)
 
-        first_name_error_message_result = register_page.check_enter_your_first_name_message_shows_up()
-        last_name_error_message_result = register_page.check_enter_your_last_name_message_shows_up()
-        email_error_message_result = register_page.check_enter_your_email_message_shows_up()
-        password_error_message_result = register_page.check_enter_your_email_message_shows_up()
+        first_name_error_message_result = register_page.check_enter_your_first_name_message_appears()
+        last_name_error_message_result = register_page.check_enter_your_last_name_message_appears()
+        email_error_message_result = register_page.check_enter_your_email_message_appears()
+        password_error_message_result = register_page.check_enter_your_password_message_appears()
+        error_message_appears_result = (first_name_error_message_result, last_name_error_message_result,
+                                         email_error_message_result, password_error_message_result)
+
+
+        date_time = datetime.today().strftime('%Y%m%d%H%M%S')
+        register_page.input_required_fields_register("Firstname", "Lastname", date_time + "@mailinator.com", "",
+                                                     "Abcd1234.", "", False, False, False, False)
+
+        # there are several redundant scroll up, because of trying to find error messages (but error messages disappear)
+        first_name_error_message_result = register_page.check_enter_your_first_name_message_appears()
+        last_name_error_message_result = register_page.check_enter_your_last_name_message_appears()
+        email_error_message_result = register_page.check_enter_your_email_message_appears()
+        password_error_message_result = register_page.check_enter_your_password_message_appears()
+        error_message_disappears_result = (first_name_error_message_result, last_name_error_message_result,
+                                           email_error_message_result, password_error_message_result)
+
+        register_result = (error_message_appears_result, error_message_disappears_result)
 
         register_page.close_register()
-        login_button_result = main_page.check_login_status()
 
+        assert register_result == ((True, True, True, True), (False, False, False, False))
+    
+    @allure.story("21 test register password match")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_register_password_match(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the register link
+        4. navigate to the register page
+        5. fill the password with valid format and leave other required fields blank
+        6. tick the required checkboxes and press register button
+        7. wait for several seconds, check if the password doesn't match message appears
+        8. fill the password and confirm password with the same valid format
+        9. press register button, check if the password doesn't match message disappears
+        10. fill the password and confirm password with different valid format
+        11. press register button, check if the password doesn't match message appears
+        12. close the register page and back to the main page
+        result:
+        1. the password doesn't match message appears in register page
+        2. the password doesn't match message disappears in register page
+        3. the password doesn't match message appears in register page
+        4. the app goes back to the main page with Sign in link
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
 
-        register_result = (first_name_error_message_result, last_name_error_message_result, email_error_message_result,
-                           password_error_message_result, login_button_result)
-        assert register_result == (True, True, True, True, True)
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        register_page.input_required_fields_register("", "", "", "", "Abcd1234.", "", True, False, False, True)
+
+        password_match_error_message_result = register_page.check_password_does_not_match_message_appears()
+        error_message_appears_result_with_empty_password = password_match_error_message_result
+
+        register_page.input_required_fields_register("", "", "", "", "Abcd1234.", "Abcd1234.", False, False, False,
+                                                     False)
+
+        # there are several redundant scroll up, because of trying to find error messages (but error messages disappear)
+        password_match_error_message_result = register_page.check_password_does_not_match_message_appears()
+        error_message_disappears_result = password_match_error_message_result
+
+        register_page.input_required_fields_register("", "", "", "", "Abcd1234.", "Abcd1234..", False, False, False,
+                                                     False)
+        password_match_error_message_result = register_page.check_password_does_not_match_message_appears()
+        error_message_appears_result_with_different_password = password_match_error_message_result
+
+        register_result = (error_message_appears_result_with_empty_password, error_message_disappears_result,
+                           error_message_appears_result_with_different_password)
+
+        register_page.close_register()
+
+        assert register_result == (True, False, True)
+    
+    @allure.story("22 test register password complexity")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_register_password_complexity(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the register link
+        4. navigate to the register page
+        5. fill the password with invalid format below
+           5.1. less than 8 characters (Abc123.)
+           5.2. at least 8 characters with lower case, at least 1 number, 0 special symbol (abcd1234)
+           5.3. at least 8 characters with upper case, at least 1 number, 0 special symbol (ABCD1234)
+           5.4. at least 8 characters with upper and lower case, 0 number, 0 special symbol (ABCDabcd)
+           5.5. at least 8 characters with lower case, 0 number, at least 1 special symbol (abcd.,-?)
+           5.6. at least 8 characters with upper case, 0 number, at least 1 special symbol (ABCD.,-?)
+           5.7. at least 8 characters without letter, at least 1 number, at least 1 special symbol (1234.,-?)
+        6. leave other required fields blank
+        7. tick the required checkboxes and press register button
+        8. close the register page and back to the main page
+        result:
+        1. the password doesn't meet complexity requirements message appears in register page
+        2. the password doesn't meet complexity requirements message disappears in register page
+        3. the app goes back to the main page with Sign in link
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        # 5.1. less than 8 characters (Abc123.)
+        register_page.input_required_fields_register("", "", "", "", "Abc123.", "", True, False, False, True)
+        less_than_8_char = register_page.check_password_does_not_meet_complexity_requirements_message_appears()
+
+        # 5.2. at least 8 characters with lower case, at least 1 number, 0 special symbol (abcd1234)
+        register_page.input_required_fields_register("", "", "", "", "abcd1234", "", False, False, False, False)
+        lower_case_number = register_page.check_password_does_not_meet_complexity_requirements_message_appears()
+
+        # 5.3. at least 8 characters with upper case, at least 1 number, 0 special symbol (ABCD1234)
+        register_page.input_required_fields_register("", "", "", "", "ABCD1234", "", False, False, False, False)
+        upper_case_number = register_page.check_password_does_not_meet_complexity_requirements_message_appears()
+
+        # 5.4. at least 8 characters with upper and lower case, 0 number, 0 special symbol (ABCDabcd)
+        register_page.input_required_fields_register("", "", "", "", "ABCDabcd", "", False, False, False, False)
+        upper_case_lower_case = register_page.check_password_does_not_meet_complexity_requirements_message_appears()
+
+        # 5.5. at least 8 characters with lower case, 0 number, at least 1 special symbol (abcd.,-?)
+        register_page.input_required_fields_register("", "", "", "", "abcd.,-?", "", False, False, False, False)
+        lower_case_symbol = register_page.check_password_does_not_meet_complexity_requirements_message_appears()
+
+        # 5.6. at least 8 characters with upper case, 0 number, at least 1 special symbol (ABCD.,-?)
+        register_page.input_required_fields_register("", "", "", "", "ABCD.,-?", "", False, False, False, False)
+        upper_case_symbol = register_page.check_password_does_not_meet_complexity_requirements_message_appears()
+
+        # 5.7. at least 8 characters without letter, at least 1 number, at least 1 special symbol (1234.,-?)
+        register_page.input_required_fields_register("", "", "", "", "1234.,-?", "", False, False, False, False)
+        number_symbol = register_page.check_password_does_not_meet_complexity_requirements_message_appears()
+
+        # fill with valid password
+        register_page.input_required_fields_register("", "", "", "", "Abcd1234.", "", False, False, False, False)
+        valid_password = register_page.check_password_does_not_meet_complexity_requirements_message_appears()
+
+        register_result = (less_than_8_char, lower_case_number, upper_case_number, upper_case_lower_case,
+                           lower_case_symbol, upper_case_symbol, number_symbol, valid_password)
+
+        register_page.close_register()
+
+        assert register_result == (True, True, True, True, True, True, True, False)
+
     '''
-    @allure.story("21 test register new user")
+    @allure.story("22 test register already registered email")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_register_email_already_exists(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the register link
+        4. navigate to the register page
+        5. input an already registered email
+        5. input all other fields and tick all the checkboxes and press register button
+        6. wait for several seconds, check if the already exists email message appears
+        7. close the register page and back to the main page
+        result:
+        1. the already exists email message appears
+        2. the app goes back to the main page with Sign in link
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        # use an already exist email to fill, here use "test_202202@mailinator.com"
+        register_page.input_required_fields_register("Firstname", "Lastname", "test_202202@mailinator.com", "",
+                                                     "Abcd1234.", "Abcd1234.", True, False, False, True)
+
+        email_already_exists_result = register_page.wait_until_email_already_exists_message_appears()
+
+        register_page.close_register()
+
+        assert email_already_exists_result == True
+
+
+    '''
+    @allure.story("2x test register new user")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_new_user(self, common_driver):
         """
@@ -1129,7 +1312,7 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.tap_register()
         date_time = datetime.today().strftime('%Y%m%d%H%M%S')
-        register_page.input_required_fields_register("Firstname", "Lastname", "test_" + date_time + "@mailinator.com",
+        register_page.input_required_fields_register("Firstname", "Lastname", date_time + "@mailinator.com",
                                                      "1234567890", "Abcd1234.", "Abcd1234.", True, True, True, True)
 
         login_button_result = main_page.check_login_status()

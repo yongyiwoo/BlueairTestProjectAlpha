@@ -25,6 +25,7 @@ class RegisterPage(BasePage):
         self.privacy_notice = (MobileBy.ID, "com.blueair.android:id/info_container")
         self.register = (MobileBy.ID, "com.blueair.android:id/btnRegister")
         self.text_input_error = (MobileBy.ID, "com.blueair.android:id/textinput_error")
+        self.email_already_exists = (MobileBy.ID, "com.blueair.android:id/snackbar_text")
 
     def input_required_fields_register(self, first_name, last_name, email, phone_number, password, confirm_password,
                                        age_limit: bool, blueair_subscription: bool, unilever_data_share: bool,
@@ -127,11 +128,16 @@ class RegisterPage(BasePage):
                     end_position_percent = self.set_position_on_screen((25, 25))
                     self.scroll_screen(start_position_percent, end_position_percent)
 
-        try:
-            register_element = self.locate_element(self.register)
-            self.tap_element(register_element)
-        except exceptions.TimeoutException:
-            return False
+                    # swipe 2 times to find agree documents element
+        for _ in range(2):
+            try:
+                register_element = self.locate_element(self.register)
+                self.tap_element(register_element)
+                break
+            except exceptions.TimeoutException:
+                start_position_percent = self.set_position_on_screen((75, 75))
+                end_position_percent = self.set_position_on_screen((25, 25))
+                self.scroll_screen(start_position_percent, end_position_percent)
 
     def close_register(self):
         try:
@@ -140,9 +146,9 @@ class RegisterPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def check_enter_your_first_name_message_shows_up(self):
+    def check_enter_your_first_name_message_appears(self):
         """
-        check if Enter your first name message shows up
+        check if Enter your first name message appears
         :return: True, if appears, False, if disappears
         """
         try:
@@ -160,9 +166,9 @@ class RegisterPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def check_enter_your_last_name_message_shows_up(self):
+    def check_enter_your_last_name_message_appears(self):
         """
-        check if Enter your last name message shows up
+        check if Enter your last name message appears
         :return: True, if appears, False, if disappears
         """
         try:
@@ -181,9 +187,9 @@ class RegisterPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def check_enter_your_email_message_shows_up(self):
+    def check_enter_your_email_message_appears(self):
         """
-        check if Enter your email message shows up
+        check if Enter your email message appears
         :return: True, if appears, False, if disappears
         """
         try:
@@ -201,9 +207,9 @@ class RegisterPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def check_enter_your_password_message_shows_up(self):
+    def check_enter_your_password_message_appears(self):
         """
-        check if Enter your password message shows up
+        check if Enter your password message appears
         :return: True, if appears, False, if disappears
         """
         try:
@@ -218,5 +224,61 @@ class RegisterPage(BasePage):
                 end_position_percent = self.set_position_on_screen((75, 75))
                 self.scroll_screen(start_position_percent, end_position_percent)
             return False
+        except exceptions.TimeoutException:
+            return False
+
+    def check_password_does_not_match_message_appears(self):
+        """
+        check if password doesn't match message appears
+        :return: True, if appears, False, if disappears
+        """
+        try:
+            # scroll up 2 times (if needed) to find text input error element
+            for _ in range(2):
+                text_input_error_elements = self.locate_element_list(self.text_input_error)
+                for text_input_error_element in text_input_error_elements:
+                    text_input_error__text = self.get_element_attribute(text_input_error_element, "text")
+                    if text_input_error__text == "Password doesn't match":
+                        return True
+                start_position_percent = self.set_position_on_screen((25, 25))
+                end_position_percent = self.set_position_on_screen((75, 75))
+                self.scroll_screen(start_position_percent, end_position_percent)
+            return False
+        except exceptions.TimeoutException:
+            return False
+
+    def check_password_does_not_meet_complexity_requirements_message_appears(self):
+        """
+        check if password doesn't meet complexity requirements message appears
+        :return: True, if appears, False, if disappears
+        """
+        try:
+            # scroll up 2 times (if needed) to find text input error element
+            for _ in range(2):
+                text_input_error_elements = self.locate_element_list(self.text_input_error)
+                for text_input_error_element in text_input_error_elements:
+                    text_input_error__text = self.get_element_attribute(text_input_error_element, "text")
+                    if text_input_error__text == "The password doesn’t meet complexity requirements":
+                        # print("can see the error message")
+                        return True
+                start_position_percent = self.set_position_on_screen((25, 25))
+                end_position_percent = self.set_position_on_screen((75, 75))
+                self.scroll_screen(start_position_percent, end_position_percent)
+            return False
+        except exceptions.TimeoutException:
+            return False
+
+    def wait_until_email_already_exists_message_appears(self):
+        """
+        check if the email already exists message appears
+        :return: True, if the message appears
+        """
+        try:
+            email_already_exists_text_element = self.locate_element(self.email_already_exists, waiting_time=20)
+            email_already_exists= self.get_element_attribute(email_already_exists_text_element, "text")
+            if email_already_exists == "Looks like an account with such email already exists":
+                return True
+            else:
+                return False # The popup text does not match invalid_password
         except exceptions.TimeoutException:
             return False
