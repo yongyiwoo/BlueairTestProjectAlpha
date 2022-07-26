@@ -204,7 +204,7 @@ class LoginPage(BasePage):
     def check_privacy_policy(self):
         """
         check privacy policy availability
-        :return: Ture, if privacy policy page shows up
+        :return: Ture, if privacy policy page appears
         """
         try:
             privacy_policy_element = self.locate_element(self.privacy_policy)
@@ -242,6 +242,3 @@ class LoginPage(BasePage):
             self.tap_element(forgot_password_element)
         except exceptions.TimeoutException:
             return False
-
-    def retrieve_password(self):
-        pass

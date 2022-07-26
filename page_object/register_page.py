@@ -26,6 +26,7 @@ class RegisterPage(BasePage):
         self.register = (MobileBy.ID, "com.blueair.android:id/btnRegister")
         self.text_input_error = (MobileBy.ID, "com.blueair.android:id/textinput_error")
         self.email_already_exists = (MobileBy.ID, "com.blueair.android:id/snackbar_text")
+        self.popup_text = (MobileBy.ID, "com.blueair.android:id/snackbar_text")
 
     def input_required_fields_register(self, first_name, last_name, email, phone_number, password, confirm_password,
                                        age_limit: bool, blueair_subscription: bool, unilever_data_share: bool,
@@ -139,10 +140,21 @@ class RegisterPage(BasePage):
                 end_position_percent = self.set_position_on_screen((25, 25))
                 self.scroll_screen(start_position_percent, end_position_percent)
 
-    def close_register(self):
+    def close_register_page_use_close_button(self):
         try:
             close_register_element = self.locate_element(self.close)
             self.tap_element(close_register_element)
+        except exceptions.TimeoutException:
+            return False
+
+    def close_register_page_use_back_button(self):
+        """
+        close the forgot password page by using back (<-) button
+        :return:
+        """
+        try:
+            back_element = self.locate_element(self.back)
+            self.tap_element(back_element)
         except exceptions.TimeoutException:
             return False
 
@@ -268,6 +280,27 @@ class RegisterPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
+    def check_email_is_invalid_message_appears(self):
+        """
+        check if email is invalid message appears
+        :return: True, if appears, False, if disappears
+        """
+        try:
+            # scroll up 2 times (if needed) to find text input error element
+            for _ in range(2):
+                text_input_error_elements = self.locate_element_list(self.text_input_error)
+                for text_input_error_element in text_input_error_elements:
+                    text_input_error__text = self.get_element_attribute(text_input_error_element, "text")
+                    if text_input_error__text == "Email is invalid":
+                        # print("can see the error message")
+                        return True
+                start_position_percent = self.set_position_on_screen((25, 25))
+                end_position_percent = self.set_position_on_screen((75, 75))
+                self.scroll_screen(start_position_percent, end_position_percent)
+            return False
+        except exceptions.TimeoutException:
+            return False
+
     def wait_until_email_already_exists_message_appears(self):
         """
         check if the email already exists message appears
@@ -280,5 +313,64 @@ class RegisterPage(BasePage):
                 return True
             else:
                 return False # The popup text does not match invalid_password
+        except exceptions.TimeoutException:
+            return False
+
+    def check_terms_of_service(self):
+        """
+        check terms of service availability
+        :return: Ture, if terms of service page shows up
+        """
+        for _ in range(2):
+            try:
+                terms_of_service_element = self.locate_element(self.terms_of_service)
+                self.tap_element(terms_of_service_element)
+                terms_and_conditions_element = self.locate_element(self.terms_and_conditions, waiting_time=10)
+                if type(terms_and_conditions_element) is webdriver.WebElement:
+                    print("terms and conditions appears")
+                    return True
+                else:
+                    print("break")
+                    break
+            except exceptions.TimeoutException:
+                print("scroll")
+                start_position_percent = self.set_position_on_screen((75, 75))
+                end_position_percent = self.set_position_on_screen((25, 25))
+                self.scroll_screen(start_position_percent, end_position_percent)
+        print("return false")
+        return False
+
+    def check_privacy_policy(self):
+        """
+        check privacy policy availability
+        :return: Ture, if privacy policy page appears
+        """
+        for _ in range(2):
+            try:
+                privacy_policy_element = self.locate_element(self.privacy_policy)
+                self.tap_element(privacy_policy_element)
+                privacy_notice_element = self.locate_element(self.privacy_notice)
+                if type(privacy_notice_element) is webdriver.WebElement:
+                    return True
+                else:
+                    break
+            except exceptions.TimeoutException:
+                start_position_percent = self.set_position_on_screen((75, 75))
+                end_position_percent = self.set_position_on_screen((25, 25))
+                self.scroll_screen(start_position_percent, end_position_percent)
+        return False
+
+    def wait_until_check_internet_connection_message_shows_up(self):
+        """
+        check if the check internet connection message shows up
+        :return: True, if the message shows up
+        """
+        try:
+            popup_text_element = self.locate_element(self.popup_text, waiting_time=20)
+            connection_lost= self.get_element_attribute(popup_text_element, "text")
+            if connection_lost == "Please check your internet connection":
+                return True
+            else:
+                return False # The popup text does not match
         except exceptions.TimeoutException:
             return False

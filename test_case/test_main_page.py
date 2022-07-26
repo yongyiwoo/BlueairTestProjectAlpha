@@ -741,7 +741,7 @@ class TestMainPage(object):
 
     @allure.story("09 test log out with app")
     @allure.severity(allure.severity_level.BLOCKER)
-    def test_log_out_with_app(self, common_driver):
+    def test_logout_with_app(self, common_driver):
         """
         steps:
         1. in the app main page, press side menu
@@ -794,7 +794,7 @@ class TestMainPage(object):
 
     @allure.story("11 test log out with facebook")
     @allure.severity(allure.severity_level.NORMAL)
-    def test_log_out_with_facebook(self, common_driver):
+    def test_logout_with_facebook(self, common_driver):
         """
         steps:
         1. in the app main page, press side menu
@@ -848,7 +848,7 @@ class TestMainPage(object):
 
     @allure.story("13 test log out with google")
     @allure.severity(allure.severity_level.NORMAL)
-    def test_log_out_with_google(self, common_driver):
+    def test_logout_with_google(self, common_driver):
         """
         steps:
         1. in the app main page, press side menu
@@ -874,7 +874,7 @@ class TestMainPage(object):
 
     @allure.story("14 test terms of service")
     @allure.severity(allure.severity_level.MINOR)
-    def test_terms_of_service(self, common_driver):
+    def test_login_terms_of_service(self, common_driver):
         """
         steps:
         1. in the app main page, press sign in button
@@ -900,7 +900,7 @@ class TestMainPage(object):
 
     @allure.story("15 test privacy policy")
     @allure.severity(allure.severity_level.MINOR)
-    def test_privacy_policy(self, common_driver):
+    def test_login_privacy_policy(self, common_driver):
         """
         steps:
         1. in the app main page, press sign in button
@@ -972,8 +972,8 @@ class TestMainPage(object):
         3. in the login page, press the forgot password link
         4. navigate to the forgot password page
         5. input the invalid username and press reset password button
-        4. check the popup text
-        5. go back to the login page
+        6. check the popup text
+        7. go back to the login page
         result:
         1. the app goes back to main page
         2. the app shows message: "Email is invalid"
@@ -1117,7 +1117,7 @@ class TestMainPage(object):
 
         register_result = (error_message_appears_result, error_message_disappears_result)
 
-        register_page.close_register()
+        register_page.close_register_page_use_close_button()
 
         assert register_result == ((True, True, True, True), (False, False, False, False))
     
@@ -1172,7 +1172,7 @@ class TestMainPage(object):
         register_result = (error_message_appears_result_with_empty_password, error_message_disappears_result,
                            error_message_appears_result_with_different_password)
 
-        register_page.close_register()
+        register_page.close_register_page_use_close_button()
 
         assert register_result == (True, False, True)
     
@@ -1244,11 +1244,10 @@ class TestMainPage(object):
         register_result = (less_than_8_char, lower_case_number, upper_case_number, upper_case_lower_case,
                            lower_case_symbol, upper_case_symbol, number_symbol, valid_password)
 
-        register_page.close_register()
+        register_page.close_register_page_use_close_button()
 
         assert register_result == (True, True, True, True, True, True, True, False)
 
-    '''
     @allure.story("22 test register already registered email")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_email_already_exists(self, common_driver):
@@ -1280,13 +1279,140 @@ class TestMainPage(object):
 
         email_already_exists_result = register_page.wait_until_email_already_exists_message_appears()
 
-        register_page.close_register()
+        register_page.close_register_page_use_close_button()
 
         assert email_already_exists_result == True
+    
+    @allure.story("23 test register terms of service")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_register_terms_of_service(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press sign in button
+        2. navigate to the login page
+        3. in the login page, press the register link
+        4. navigate to the register page
+        3. press terms of service
+        4. go back to the main page
+        result:
+        1. the app shows terms of services
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, terms of service appears
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
 
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        terms_of_service_result = register_page.check_terms_of_service()
+
+        register_page.navigate_back(3)  # navigate back to main page
+
+        assert terms_of_service_result == True
+
+    @allure.story("24 test register privacy policy")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_register_privacy_policy(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press sign in button
+        2. navigate to the login page
+        3. in the login page, press the register link
+        4. navigate to the register page
+        3. press privacy policy
+        4. go back to the main page
+        result:
+        1. the app shows privacy policy
+        2. the app goes back to the main page
+        :param common_driver:
+        :return: pass, privacy policy appears
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        privacy_policy_result = register_page.check_privacy_policy()
+
+        register_page.navigate_back(3)  # navigate back to main page
+
+        assert privacy_policy_result == True
+
+    @allure.story("25 test register with invalid email")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_register_with_invalid_username(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the sign in button
+        2. navigate to the login page
+        3. in the login page, press the register link
+        4. navigate to the register page
+        5. input the invalid email (test_202202@mailinator)
+        6. fill other fields and press register button
+        7. check the popup text
+        8. go back to the login page
+        result:
+        1. the app shows message: "Email is invalid"
+        2. the app goes back to main page
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
+
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        register_page.input_required_fields_register("", "", "test_202202@mailinator", "", "", "",
+                                                     True, False, False, True)
+
+        message_shows_up_result = register_page.check_email_is_invalid_message_appears()
+
+        register_page.close_register_page_use_back_button()
+        login_pages.close_login_page()
+
+        assert message_shows_up_result == True
+    '''
+    @allure.story("26 test register without network")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_register_without_network(self, common_driver):
+        """
+        steps:
+        1. turn off the phone wifi
+        2. in the app main page, press the sign in button
+        3. navigate to the login page
+        4. press the register link
+        5. input a valid username and press reset password button
+        6. check out the popup text
+        5. go back to the login page
+        result:
+        1. the app shows message: "Please check your internet connection"
+        2. the app goes back to login page
+        :param common_driver:
+        :return: pass, if not logged in
+        """
+        main_page = MainPage(common_driver)
+        login_pages = LoginPage(common_driver)
+        register_page = RegisterPage(common_driver)
+
+        main_page.set_connection(0)
+        main_page.tap_user_login()
+        login_pages.tap_register()
+        date_time = datetime.today().strftime('%Y%m%d%H%M%S')
+        register_page.input_required_fields_register("Firstname", "Lastname", date_time + "@mailinator.com", "",
+                                                     "Abcd1234.", "Abcd1234.", True, False, False, True)
+
+        message_shows_up_result = register_page.wait_until_check_internet_connection_message_shows_up()
+        register_page.close_register_page_use_close_button()
+        main_page.set_connection(6)
+
+        assert message_shows_up_result == True
 
     '''
-    @allure.story("2x test register new user")
+    @allure.story("27 test register new user")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_new_user(self, common_driver):
         """
