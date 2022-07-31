@@ -130,7 +130,7 @@ class ForgotPasswordPage(BasePage):
         imap.login(username, password)
 
         _, messages = imap.select("INBOX")
-        _, items = imap.search(None, "ALL") # can also be "UNSEEN" for new email
+        _, items = imap.search(None, "UNSEEN") # can also be "ALL" for new email
 
         if items == [None]:
             return False
