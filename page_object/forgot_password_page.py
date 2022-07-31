@@ -1,6 +1,7 @@
 from appium.webdriver.common.mobileby import MobileBy
 from page_object.base_page import BasePage
 from selenium.common import exceptions
+import imaplib
 
 
 class ForgotPasswordPage(BasePage):
@@ -28,7 +29,7 @@ class ForgotPasswordPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def wait_until_invalid_email_message_shows_up(self):
+    def wait_until_invalid_email_message_appears(self):
         """
         check if the invalid email message shows up
         :return: True, if the message shows up
@@ -43,7 +44,7 @@ class ForgotPasswordPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def wait_until_unregistered_email_message_shows_up(self):
+    def wait_until_unregistered_email_message_appears(self):
         """
         check if the unregistered email message shows up
         :return: True, if the message shows up
@@ -58,7 +59,7 @@ class ForgotPasswordPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def wait_until_password_reset_message_shows_up(self):
+    def wait_until_password_reset_message_appears(self):
         """
         check if the password reset sent message shows up
         :return: True, if the message shows up
@@ -73,7 +74,7 @@ class ForgotPasswordPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def wait_until_check_internet_connection_message_shows_up(self):
+    def wait_until_check_internet_connection_message_appears(self):
         """
         check if the check internet connection message shows up
         :return: True, if the message shows up
@@ -109,3 +110,42 @@ class ForgotPasswordPage(BasePage):
             self.tap_element(back_element)
         except exceptions.TimeoutException:
             return False
+
+    @staticmethod
+    def check_forgot_password_email():
+        """
+        check if there is a new email that sent from blueair with subject "How to reset your Blueair account password"
+        currently use Apple icloud email service
+        check the link of how to get the app-specific password https://support.apple.com/en-us/HT204397
+        "username: test_forgot_password@icloud.com"
+        "password: Qazwsx135."
+        "app-pass: cpjb-xhhe-sccs-cnaw"
+        :return:
+        """
+        username = "test_forgot_password@icloud.com"
+        password = "cpjb-xhhe-sccs-cnaw"
+        imap_server = "imap.mail.me.com"
+
+        imap = imaplib.IMAP4_SSL(host=imap_server, port=993)
+        imap.login(username, password)
+
+        _, messages = imap.select("INBOX")
+        _, items = imap.search(None, "ALL") # can also be "UNSEEN" for new email
+
+        if items == [None]:
+            return False
+        else:
+            # check fetch command https://datatracker.ietf.org/doc/html/rfc2060#section-6.4.5 for more parameters
+            # e.g. "(BODY[TEXT])" means text body of the message
+            # items[-1], "UTF-8": fetch the newest email and convert it to string
+            _, data = imap.fetch(str(items[-1], "UTF-8").strip()[-1], "(BODY[TEXT])")
+
+            if data == [None]:
+                return False
+            else:
+                subject_string = 'name="subject" content="How to reset your Blueair account password"'
+                whole_email = str(data[0][1],"UTF-8")
+                if subject_string in whole_email:
+                    return True
+                else:
+                    return False

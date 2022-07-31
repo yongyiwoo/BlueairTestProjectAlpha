@@ -8,6 +8,8 @@ from page_object.login_page import LoginPage
 from page_object.forgot_password_page import ForgotPasswordPage
 from page_object.register_page import RegisterPage
 from page_object.side_menu_pages import SideMenuPages
+from page_object.settings_pages import SettingsPages
+from page_object.profile_page import ProfilePage
 from page_object.dustmagnet_connection_pages import DustMagnetConnectionPages
 from page_object.dustmagnet_detail_pages import DustMagnetDetailPages
 from page_object.healthprotect_connection_pages import HealthProtectConnectionPages
@@ -512,7 +514,7 @@ class TestMainPage(object):
     ####################################################################################################
     #                                          login test cases                                        #
     ####################################################################################################
-    '''
+
     @allure.story("01 test login with unregistered username and a password")
     @allure.severity(allure.severity_level.BLOCKER)
     def test_login_with_unregistered_username_and_a_password(self, common_driver):
@@ -759,7 +761,7 @@ class TestMainPage(object):
 
         main_page.tap_side_menu()
         side_menu_pages.tap_log_out()
-        side_menu_pages.close_side_menu()
+        side_menu_pages.close_side_menu_use_close_button()
 
         log_out_result = login_pages.main_page_login_status()
 
@@ -812,7 +814,7 @@ class TestMainPage(object):
 
         main_page.tap_side_menu()
         side_menu_pages.tap_log_out()
-        side_menu_pages.close_side_menu()
+        side_menu_pages.close_side_menu_use_close_button()
 
         log_out_result = login_pages.main_page_login_status()
 
@@ -866,7 +868,7 @@ class TestMainPage(object):
 
         main_page.tap_side_menu()
         side_menu_pages.tap_log_out()
-        side_menu_pages.close_side_menu()
+        side_menu_pages.close_side_menu_use_close_button()
 
         log_out_result = login_pages.main_page_login_status()
 
@@ -923,12 +925,11 @@ class TestMainPage(object):
         login_pages.navigate_back()  # navigate back to main page
 
         assert privacy_policy_result == True
-
-    '''
+    
     ####################################################################################################
     #                                    forgot password test cases                                    #
     ####################################################################################################
-    '''
+    
     @allure.story("16 test forgot password reset success")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_forgot_password_reset_success(self, common_driver):
@@ -949,18 +950,20 @@ class TestMainPage(object):
         """
         main_page = MainPage(common_driver)
         login_pages = LoginPage(common_driver)
-        forgot_password_page = ForgotPassword(common_driver)
+        forgot_password_page = ForgotPasswordPage(common_driver)
 
         main_page.tap_user_login()
         login_pages.tap_forgot_password()
         forgot_password_page.input_username_reset_password("test_202202@mailinator.com")
 
-        message_shows_up_result = forgot_password_page.wait_until_password_reset_message_shows_up()
-        login_page_shows_up_result = login_pages.check_login_page_status()
+        message_result = forgot_password_page.wait_until_password_reset_message_appears()
+        login_page_result = login_pages.check_login_page_status()
 
         login_pages.navigate_back()
 
-        assert message_shows_up_result, login_page_shows_up_result == (True, True)
+        email_result = forgot_password_page.check_forgot_password_email()
+
+        assert (message_result, login_page_result, email_result) == (True, True, True)
 
     @allure.story("17 test forgot password with invalid username")
     @allure.severity(allure.severity_level.NORMAL)
@@ -982,7 +985,7 @@ class TestMainPage(object):
         """
         main_page = MainPage(common_driver)
         login_pages = LoginPage(common_driver)
-        forgot_password_page = ForgotPassword(common_driver)
+        forgot_password_page = ForgotPasswordPage(common_driver)
 
         main_page.tap_user_login()
         login_pages.tap_forgot_password()
@@ -1015,7 +1018,7 @@ class TestMainPage(object):
         """
         main_page = MainPage(common_driver)
         login_pages = LoginPage(common_driver)
-        forgot_password_page = ForgotPassword(common_driver)
+        forgot_password_page = ForgotPasswordPage(common_driver)
 
         main_page.tap_user_login()
         login_pages.tap_forgot_password()
@@ -1048,14 +1051,14 @@ class TestMainPage(object):
         """
         main_page = MainPage(common_driver)
         login_pages = LoginPage(common_driver)
-        forgot_password_page = ForgotPassword(common_driver)
+        forgot_password_page = ForgotPasswordPage(common_driver)
 
         main_page.set_connection(0)
         main_page.tap_user_login()
         login_pages.tap_forgot_password()
         forgot_password_page.input_username_reset_password("test_202202@mailinator.com")
 
-        message_shows_up_result = forgot_password_page.wait_until_check_internet_connection_message_shows_up()
+        message_shows_up_result = forgot_password_page.wait_until_check_internet_connection_message_appears()
         login_pages.close_login_page()
         main_page.set_connection(6)
         # sometimes checking needs more time, so to make sure back to the main page
@@ -1063,12 +1066,11 @@ class TestMainPage(object):
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
-
-    '''
+    
     ####################################################################################################
     #                                        register test cases                                       #
     ####################################################################################################
-    '''
+    
     @allure.story("20 test register without filling required fields")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_without_filling_required_fields(self, common_driver):
@@ -1375,7 +1377,7 @@ class TestMainPage(object):
         login_pages.close_login_page()
 
         assert message_shows_up_result == True
-    '''
+    
     @allure.story("26 test register without network")
     @allure.severity(allure.severity_level.NORMAL)
     def test_register_without_network(self, common_driver):
@@ -1411,7 +1413,6 @@ class TestMainPage(object):
 
         assert message_shows_up_result == True
 
-    '''
     @allure.story("27 test register new user")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_new_user(self, common_driver):
@@ -1434,6 +1435,7 @@ class TestMainPage(object):
         login_pages = LoginPage(common_driver)
         register_page = RegisterPage(common_driver)
         side_menu_pages = SideMenuPages(common_driver)
+        profile_page = ProfilePage(common_driver)
 
         main_page.tap_user_login()
         login_pages.tap_register()
@@ -1446,14 +1448,25 @@ class TestMainPage(object):
 
         main_page.tap_side_menu()
         side_menu_pages.tap_profile()
-        profile_email_text = side_menu_pages.get_profile_email()
+        profile_email_text = profile_page.get_email_info()
         if profile_email_text == "test_" + date_time + "@mailinator.com":
             profile_email_result = True
         else:
             profile_email_result = False
-        # profile_first_name_result = side_menu_pages.get_profile_first_name()
-        # profile_last_name_result = side_menu_pages.get_profile_last_name()
-        profile_phone_number_text = side_menu_pages.get_profile_phone_number()
+            
+        profile_first_name_text = profile_page.get_first_name_info()
+        if profile_first_name_text == "Firstname":
+            profile_first_name_result = True
+        else:
+            profile_first_name_result = False
+            
+        profile_last_name_text = profile_page.get_last_name_info()
+        if profile_last_name_text == "Firstname":
+            profile_last_name_result = True
+        else:
+            profile_last_name_result = False
+            
+        profile_phone_number_text = profile_page.get_phone_number_info()
         if profile_phone_number_text == "1234567890":
             profile_phone_number_result = True
         else:
@@ -1461,23 +1474,310 @@ class TestMainPage(object):
         side_menu_pages.navigate_back()
 
         main_page.tap_side_menu()
-        log_out_button_result = side_menu_pages.check_log_out_status()
+        log_out_button_result = side_menu_pages.check_log_out_appears()
         side_menu_pages.tap_log_out()
-        side_menu_pages.close_side_menu()
+        side_menu_pages.close_side_menu_use_close_button()
 
-        register_result = (login_button_result, side_menu_result, profile_email_result, profile_phone_number_result,
-                           log_out_button_result)
-        assert register_result == (False, True, True, True, True)
-    '''
+        register_result = (login_button_result, side_menu_result, profile_email_result, profile_first_name_result, 
+                           profile_first_name_result, profile_phone_number_result, log_out_button_result)
+        assert register_result == (False, True, True, True, True, True, True)
 
+    ####################################################################################################
+    #                                       side menu test cases                                       #
+    ####################################################################################################
 
+    @allure.story("28 test side menu open close")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_side_menu_open_close(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the close button in side menu
+        3. in the app main page, press the side menu button
+        4. tap other area than the side menu
+        result:
+        1. the side menu opens
+        2. the side menu closes
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
 
+        main_page.tap_side_menu()
+        side_menu_pages.close_side_menu_use_close_button()
+        #time.sleep(5) # wait for 5 seconds to let the code checks side menu disappears
 
+        close_button_result = side_menu_pages.check_side_menu_appears()
 
+        main_page.tap_side_menu()
+        side_menu_pages.close_side_menu_use_blank_space()
+        #time.sleep(5)  # wait for 5 seconds to let the code checks side menu disappears
 
-    # register
-    # login page press "X"
+        blank_space_result = side_menu_pages.check_side_menu_appears()
 
+        assert (close_button_result, blank_space_result) == (False, False)
+
+    @allure.story("29 test side menu air quality map")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_side_menu_air_quality_map(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the air quality map button
+        3. navigate to the main page
+        result:
+        1. the air quality map page opens
+        2. the app goes back to the main page with logged in
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_air_quality_map()
+        air_quality_map_result = side_menu_pages.check_air_quality_map_page_appears()
+
+        side_menu_pages.navigate_back()
+
+        assert air_quality_map_result == True
+
+    @allure.story("30 test side menu blueair store")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_side_menu_blueair_store(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the blueair store button
+        3. navigate to the main page
+        result:
+        1. the blueair store page opens
+        2. the app goes back to the main page with logged in
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_blueair_store()
+        blueair_store_result = side_menu_pages.check_blueair_store_page_appears()
+
+        side_menu_pages.navigate_back()
+
+        assert blueair_store_result == True
+
+    @allure.story("31 test side menu profile")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_side_menu_profile(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the profile button
+        3. navigate to the main page
+        result:
+        1. the profile page opens
+        2. the app goes back to the main page with logged in
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+        profile_page = ProfilePage(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_profile()
+        profile_result = profile_page.check_profile_page_appears()
+
+        profile_page.navigate_back()
+
+        assert profile_result == True
+
+    @allure.story("32 test side menu settings")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_side_menu_settings(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the settings button
+        3. navigate to the main page
+        result:
+        1. the settings page opens
+        2. the app goes back to the main page with logged in
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+        settings_pages = SettingsPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_settings()
+        settings_result = settings_pages.check_settings_page_appears()
+
+        side_menu_pages.navigate_back()
+
+        assert settings_result == True
+
+    @allure.story("33 test side menu voice assistants")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_side_menu_voice_assistants(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the voice assistants button
+        3. navigate to the main page
+        result:
+        1. the voice assistants page opens
+        2. the app goes back to the main page with logged in
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_voice_assistants()
+        voice_assistants_result = side_menu_pages.check_voice_assistants_page_appears()
+
+        side_menu_pages.navigate_back()
+
+        assert voice_assistants_result == True
+
+    @allure.story("34 test side menu support")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_side_menu_support(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the support button
+        3. navigate to the main page
+        result:
+        1. the support page opens
+        2. the app goes back to the main page with logged in
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_support()
+        support_result = side_menu_pages.check_support_page_appears()
+
+        side_menu_pages.navigate_back()
+
+        assert support_result == True
+
+    @allure.story("35 test side menu policies")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_side_menu_policies(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the policies button
+        3. navigate to the main page
+        result:
+        1. the policies page opens
+        2. the app goes back to the main page with logged in
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_support()
+        policies_result = side_menu_pages.check_policies_page_appears()
+
+        side_menu_pages.navigate_back()
+
+        assert policies_result == True
+    
+    @allure.story("36 test side menu logout")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_side_menu_logout(self, common_driver):
+        """
+        steps:
+        1. in the app main page, press the side menu button
+        2. tap the logout button
+        3. in the popup window, press no
+        4. tap the logout button again
+        5. in the popup window, press yes
+        6. close the side menu
+        result:
+        1. the app stays with logged in
+        2. the app logged out
+        3. sign in button appears, log out button replaces by sign in button in side menu
+        4. additional sections disappear (profile, voice assistants, subscriptions, warranty) depends on the region
+        :param common_driver:
+        :return:
+        """
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+
+        main_page.tap_side_menu()
+        side_menu_pages.tap_log_out(False)
+        side_menu_pages.tap_log_out(True)
+
+        sign_in_result = side_menu_pages.check_sign_in_appears()
+        log_out_result = side_menu_pages.check_log_out_appears()
+        profile_result = side_menu_pages.check_profile_appears()
+        voice_assistants_result = side_menu_pages.check_voice_assistants_appears()
+
+        side_menu_pages.close_side_menu_use_close_button()
+
+        login_result = main_page.check_login_status()
+
+        assert (login_result, sign_in_result, log_out_result, profile_result, voice_assistants_result) == \
+               (True, True, False, False, False)
+
+    @allure.story("37 test side menu login logout ui")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_side_menu_login_logout_ui(self, common_driver):
+        main_page = MainPage(common_driver)
+        side_menu_pages = SideMenuPages(common_driver)
+        login_page = LoginPage(common_driver)
+
+        main_page.tap_side_menu()
+
+        if side_menu_pages.check_log_out_appears():
+            side_menu_pages.tap_log_out(True)
+
+        logout_ui_result = (side_menu_pages.check_blueair_logo_appears(),
+                            side_menu_pages.check_blueair_title_appears(),
+                            side_menu_pages.check_air_quality_map_appears(),
+                            side_menu_pages.check_blueair_store_appears(),
+                            side_menu_pages.check_profile_appears(),
+                            side_menu_pages.check_settings_appears(),
+                            side_menu_pages.check_voice_assistants_appears(),
+                            side_menu_pages.check_support_appears(),
+                            side_menu_pages.check_policies_appears(),
+                            side_menu_pages.check_sign_in_appears(),
+                            side_menu_pages.check_log_out_appears(),
+                            side_menu_pages.check_app_version_appears())
+
+        side_menu_pages.tap_sign_in()
+        login_page.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
+
+        main_page.tap_side_menu()
+        login_ui_result = (side_menu_pages.check_blueair_logo_appears(),
+                           side_menu_pages.check_blueair_title_appears(),
+                           side_menu_pages.check_air_quality_map_appears(),
+                           side_menu_pages.check_blueair_store_appears(),
+                           side_menu_pages.check_profile_appears(),
+                           side_menu_pages.check_settings_appears(),
+                           side_menu_pages.check_voice_assistants_appears(),
+                           side_menu_pages.check_support_appears(),
+                           side_menu_pages.check_policies_appears(),
+                           side_menu_pages.check_sign_in_appears(),
+                           side_menu_pages.check_log_out_appears(),
+                           side_menu_pages.check_app_version_appears())
+
+        assert (logout_ui_result, login_ui_result) == \
+               ((True, True, True, True, False, True, False, True, True, True, False, True),
+                (True, True, True, True, True, True, True, True, True, False, True, True))
 
 if __name__ == "__main__":
     pytest.main(["-v", "-s", "--alluredir","./test_results"]) # use pytest test_main_page.py

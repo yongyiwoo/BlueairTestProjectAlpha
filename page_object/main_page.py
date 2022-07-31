@@ -722,7 +722,7 @@ class MainPage(BasePage):
         :return: a hamburger menu page object
         """
         try:
-            side_menu_element = self.locate_element(self.side_menu)
+            side_menu_element = self.locate_element(self.side_menu, waiting_time=20)
             self.tap_element(side_menu_element)
             # side_menu = SideMenuPage(self.driver)
             # return side_menu

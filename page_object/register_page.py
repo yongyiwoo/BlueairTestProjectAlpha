@@ -22,11 +22,11 @@ class RegisterPage(BasePage):
         self.terms_of_service = (MobileBy.ID, "com.blueair.android:id/txtTerms")
         self.terms_and_conditions = (MobileBy.ID, "com.blueair.android:id/info_container")
         self.privacy_policy = (MobileBy.ID, "com.blueair.android:id/txtPrivacy")
-        self.privacy_notice = (MobileBy.ID, "com.blueair.android:id/info_container")
+        self.privacy_notice = (MobileBy.ID, "com.blueair.android:id/web_container")
         self.register = (MobileBy.ID, "com.blueair.android:id/btnRegister")
         self.text_input_error = (MobileBy.ID, "com.blueair.android:id/textinput_error")
-        self.email_already_exists = (MobileBy.ID, "com.blueair.android:id/snackbar_text")
-        self.popup_text = (MobileBy.ID, "com.blueair.android:id/snackbar_text")
+        self.email_already_exists = self.popup_text = (MobileBy.ID, "com.blueair.android:id/snackbar_text")
+
 
     def input_required_fields_register(self, first_name, last_name, email, phone_number, password, confirm_password,
                                        age_limit: bool, blueair_subscription: bool, unilever_data_share: bool,
@@ -327,17 +327,17 @@ class RegisterPage(BasePage):
                 self.tap_element(terms_of_service_element)
                 terms_and_conditions_element = self.locate_element(self.terms_and_conditions, waiting_time=10)
                 if type(terms_and_conditions_element) is webdriver.WebElement:
-                    print("terms and conditions appears")
+                    #print("terms and conditions appears")
                     return True
                 else:
-                    print("break")
+                    #print("break")
                     break
             except exceptions.TimeoutException:
-                print("scroll")
+                #print("scroll")
                 start_position_percent = self.set_position_on_screen((75, 75))
                 end_position_percent = self.set_position_on_screen((25, 25))
                 self.scroll_screen(start_position_percent, end_position_percent)
-        print("return false")
+        #print("return false")
         return False
 
     def check_privacy_policy(self):
