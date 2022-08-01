@@ -514,7 +514,7 @@ class TestMainPage(object):
     ####################################################################################################
     #                                          login test cases                                        #
     ####################################################################################################
-    '''
+
     @allure.story("01 test login with unregistered username and a password")
     @allure.severity(allure.severity_level.BLOCKER)
     def test_login_with_unregistered_username_and_a_password(self, common_driver):
@@ -925,7 +925,7 @@ class TestMainPage(object):
         login_pages.navigate_back()  # navigate back to main page
 
         assert privacy_policy_result == True
-    '''
+
     ####################################################################################################
     #                                    forgot password test cases                                    #
     ####################################################################################################
@@ -967,7 +967,6 @@ class TestMainPage(object):
 
         assert (message_result, login_page_result, email_result) == (True, True, True)
 
-    '''
     @allure.story("17 test forgot password with invalid username")
     @allure.severity(allure.severity_level.NORMAL)
     def test_forgot_password_with_invalid_username(self, common_driver):
@@ -1781,7 +1780,7 @@ class TestMainPage(object):
         assert (logout_ui_result, login_ui_result) == \
                ((True, True, True, True, False, True, False, True, True, True, False, True),
                 (True, True, True, True, True, True, True, True, True, False, True, True))
-    '''
+
 if __name__ == "__main__":
     pytest.main(["-v", "-s", "--alluredir","./test_results"]) # use pytest test_main_page.py
     # os.system("allure generate ./test_results -o ./test_report")
