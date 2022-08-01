@@ -526,8 +526,8 @@ class TestMainPage(object):
         4. wait for 20 seconds, to check the popup text
         5. go back to the main page
         result:
-        1. user has NOT logged in and still stay in login page
-        2. the app shows message: "There is no user with that email"
+        1. the app shows message: "There is no user with that email"
+        2. user has NOT logged in and back to the main page
         :param common_driver:
         :return: pass, if not logged in
         """
@@ -540,12 +540,11 @@ class TestMainPage(object):
         message_shows_up_result = login_pages.wait_until_unregistered_email_message_appears()
         login_pages.close_login_page()
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_status():
+        if not main_page.check_side_menu_appears():
             login_pages.navigate_back()
 
-
         assert message_shows_up_result == True
-
+    
     @allure.story("02 test login with invalid username and a password")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_login_with_invalid_username_and_a_password(self, common_driver):
@@ -557,8 +556,8 @@ class TestMainPage(object):
         4. wait for 20 seconds, to check the popup text
         5. go back to the main page
         result:
-        1. user has NOT logged in and still stay in login page
-        2. the app shows message: "Email is invalid"
+        1. the app shows message: "Email is invalid"
+        2. user has NOT logged in and back to the main page
         :param common_driver:
         :return: pass, if not logged in
         """
@@ -571,7 +570,7 @@ class TestMainPage(object):
         message_shows_up_result = login_pages.wait_until_invalid_email_message_appears()
         login_pages.close_login_page()
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_status():
+        if not main_page.check_side_menu_appears():
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
@@ -586,7 +585,7 @@ class TestMainPage(object):
         3. input a blank username and a password and press log in button
         4. go back to the main page
         result:
-        1. user has NOT logged in and still stay in login page
+        1. user has NOT logged in and back to the main page
         :param common_driver:
         :return: pass, if not logged in
         """
@@ -598,10 +597,11 @@ class TestMainPage(object):
 
         login_pages.close_login_page()
 
-        login_result = login_pages.main_page_login_status()
+        login_result = main_page.check_login_appears()
+        side_menu_result = main_page.check_side_menu_appears()
 
-        assert login_result == (True, True)
-    
+        assert (login_result, side_menu_result) == (True, True)
+
     @allure.story("04 test login with correct username and not complex password") # password is less than 6 characters
     @allure.severity(allure.severity_level.NORMAL)
     def test_login_with_correct_username_and_not_complex_password(self, common_driver):
@@ -613,8 +613,8 @@ class TestMainPage(object):
         4. wait for 20 seconds, to check the popup text
         5. go back to the main page
         result:
-        1. user has NOT logged in and still stay in login page
-        2. the app shows message: "The password doesn’t meet complexity requirements"
+        1. the app shows message: "The password doesn’t meet complexity requirements"
+        2. user has NOT logged in and back to the main page
         :param common_driver:
         :return: pass, if not logged in
         """
@@ -639,8 +639,8 @@ class TestMainPage(object):
         3. input a username and an incorrect password and press log in button
         4. go back to the main page
         result:
-        1. user has NOT logged in and still stay in login page
-        2. the app shows message: "Email is invalid"
+        1. the app shows message: "Email is invalid"
+        2. user has NOT logged in and back to the main page
         :param common_driver:
         :return: pass, if not logged in
         """
@@ -653,7 +653,7 @@ class TestMainPage(object):
         message_shows_up_result = login_pages.wait_until_invalid_password_message_appears()
         login_pages.navigate_back()
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_status():
+        if not main_page.check_side_menu_appears():
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
@@ -669,8 +669,8 @@ class TestMainPage(object):
         4. input a username and an incorrect password and press log in button
         5. go back to the main page
         result:
-        1. user has NOT logged in and still stay in login page
-        2. the app shows message: "The Internet connection appears to be offline."
+        1. the app shows message: "The Internet connection appears to be offline."
+        2. user has NOT logged in and back to the main page
         :param common_driver:
         :return: pass, if not logged in
         """
@@ -685,11 +685,11 @@ class TestMainPage(object):
         login_pages.close_login_page()
         main_page.set_connection(6)
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_status():
+        if not main_page.check_side_menu_appears():
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
-
+    
     @allure.story("07 test login with correct username and blank password")
     @allure.severity(allure.severity_level.BLOCKER)
     def test_login_with_correct_username_and_blank_password(self, common_driver):
@@ -700,7 +700,7 @@ class TestMainPage(object):
         3. input a username and a blank password and press log in button
         4. go back to the main page
         result:
-        1. user has NOT logged in and still stay in login page
+        1. user has NOT logged in and back to the main page
         :param common_driver:
         :return: pass, if not logged in
         """
@@ -712,9 +712,10 @@ class TestMainPage(object):
 
         login_pages.close_login_page()
 
-        login_result = login_pages.main_page_login_status()
+        login_result = main_page.check_login_appears()
+        side_menu_result = main_page.check_side_menu_appears()
 
-        assert login_result == (True, True)
+        assert (login_result, side_menu_result) == (True, True)
     
     @allure.story("08 test login with correct username and password")
     @allure.severity(allure.severity_level.BLOCKER)
@@ -737,9 +738,10 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
 
-        login_result = login_pages.main_page_login_status()
+        login_result = main_page.check_login_appears()
+        side_menu_result = main_page.check_side_menu_appears()
 
-        assert login_result == (True, False)
+        assert (login_result, side_menu_result) == (False, True)
 
     @allure.story("09 test log out with app")
     @allure.severity(allure.severity_level.BLOCKER)
@@ -756,16 +758,21 @@ class TestMainPage(object):
         :return: pass, terms of service shows
         """
         main_page = MainPage(common_driver)
-        login_pages = LoginPage(common_driver)
         side_menu_pages = SideMenuPages(common_driver)
 
-        main_page.tap_side_menu()
-        side_menu_pages.tap_log_out()
-        side_menu_pages.close_side_menu_use_close_button()
+        # check if test case login with blueair account pass
+        if main_page.check_login_appears():
+            login_result = False
+            side_menu_result = False
+        else:
+            main_page.tap_side_menu()
+            side_menu_pages.tap_log_out(True)
+            side_menu_pages.close_side_menu_use_close_button()
 
-        log_out_result = login_pages.main_page_login_status()
+            login_result = main_page.check_login_appears()
+            side_menu_result = main_page.check_side_menu_appears()
 
-        assert log_out_result == (True, True)
+        assert (login_result, side_menu_result) == (True, True)
 
     @allure.story("10 test login with facebook account")
     @allure.severity(allure.severity_level.NORMAL)
@@ -787,12 +794,13 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.tap_continue_with_facebook()
 
-        login_result = login_pages.main_page_login_status()
+        login_result = main_page.check_login_appears()
+        side_menu_result = main_page.check_side_menu_appears()
         # sometimes facebook has some issues and cannot login, so to make sure back to the main page
-        if not main_page.check_side_menu_status():
+        if not main_page.check_side_menu_appears():
             login_pages.navigate_back()
 
-        assert login_result == (True, False)
+        assert (login_result, side_menu_result) == (True, False)
 
     @allure.story("11 test log out with facebook")
     @allure.severity(allure.severity_level.NORMAL)
@@ -809,16 +817,21 @@ class TestMainPage(object):
         :return: pass, terms of service shows
         """
         main_page = MainPage(common_driver)
-        login_pages = LoginPage(common_driver)
         side_menu_pages = SideMenuPages(common_driver)
 
-        main_page.tap_side_menu()
-        side_menu_pages.tap_log_out()
-        side_menu_pages.close_side_menu_use_close_button()
+        # check if test case login with facebook account pass
+        if main_page.check_login_appears():
+            login_result = False
+            side_menu_result = False
+        else:
+            main_page.tap_side_menu()
+            side_menu_pages.tap_log_out(True)
+            side_menu_pages.close_side_menu_use_close_button()
 
-        log_out_result = login_pages.main_page_login_status()
+            login_result = main_page.check_login_appears()
+            side_menu_result = main_page.check_side_menu_appears()
 
-        assert log_out_result == (True, True)
+        assert (login_result, side_menu_result) == (True, True)
 
     @allure.story("12 test login with google account")
     @allure.severity(allure.severity_level.NORMAL)
@@ -841,12 +854,14 @@ class TestMainPage(object):
         main_page.tap_user_login()
         login_pages.tap_continue_with_google()
 
-        login_result = login_pages.main_page_login_status()
+        login_result = main_page.check_login_appears()
+        side_menu_result = main_page.check_side_menu_appears()
+
         # sometimes google has some issues and cannot login, so to make sure back to the main page
-        if not main_page.check_side_menu_status():
+        if not main_page.check_side_menu_appears():
             login_pages.navigate_back()
 
-        assert login_result == (True, False)
+        assert (login_result, side_menu_result) == (False, True)
 
     @allure.story("13 test log out with google")
     @allure.severity(allure.severity_level.NORMAL)
@@ -863,16 +878,21 @@ class TestMainPage(object):
         :return: pass, terms of service shows
         """
         main_page = MainPage(common_driver)
-        login_pages = LoginPage(common_driver)
         side_menu_pages = SideMenuPages(common_driver)
 
-        main_page.tap_side_menu()
-        side_menu_pages.tap_log_out()
-        side_menu_pages.close_side_menu_use_close_button()
+        # check if test case login with google account pass
+        if main_page.check_login_appears():
+            login_result = False
+            side_menu_result = False
+        else:
+            main_page.tap_side_menu()
+            side_menu_pages.tap_log_out(True)
+            side_menu_pages.close_side_menu_use_close_button()
 
-        log_out_result = login_pages.main_page_login_status()
+            login_result = main_page.check_login_appears()
+            side_menu_result = main_page.check_side_menu_appears()
 
-        assert log_out_result == (True, True)
+        assert (login_result, side_menu_result) == (True, True)
 
     @allure.story("14 test terms of service")
     @allure.severity(allure.severity_level.MINOR)
@@ -895,8 +915,7 @@ class TestMainPage(object):
         main_page.tap_user_login()
         terms_of_service_result = login_pages.check_terms_of_service()
 
-        login_pages.navigate_back() # navigate back to login page
-        login_pages.navigate_back() # navigate back to main page
+        login_pages.navigate_back(2) # navigate back to login page then to main page
 
         assert terms_of_service_result == True
 
@@ -921,15 +940,14 @@ class TestMainPage(object):
         main_page.tap_user_login()
         privacy_policy_result = login_pages.check_privacy_policy()
 
-        login_pages.navigate_back()  # navigate back to login page
-        login_pages.navigate_back()  # navigate back to main page
+        login_pages.navigate_back(2)  # navigate back to login page then to main page
 
         assert privacy_policy_result == True
 
     ####################################################################################################
     #                                    forgot password test cases                                    #
     ####################################################################################################
-    
+    '''
     @allure.story("16 test forgot password reset success")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_forgot_password_reset_success(self, common_driver):
@@ -1068,11 +1086,11 @@ class TestMainPage(object):
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
-    
+    '''
     ####################################################################################################
     #                                        register test cases                                       #
     ####################################################################################################
-    
+    '''
     @allure.story("20 test register without filling required fields")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_without_filling_required_fields(self, common_driver):
@@ -1483,11 +1501,11 @@ class TestMainPage(object):
         register_result = (login_button_result, side_menu_result, profile_email_result, profile_first_name_result, 
                            profile_first_name_result, profile_phone_number_result, log_out_button_result)
         assert register_result == (False, True, True, True, True, True, True)
-
+    '''
     ####################################################################################################
     #                                       side menu test cases                                       #
     ####################################################################################################
-
+    '''
     @allure.story("28 test side menu open close")
     @allure.severity(allure.severity_level.NORMAL)
     def test_side_menu_open_close(self, common_driver):
@@ -1780,7 +1798,7 @@ class TestMainPage(object):
         assert (logout_ui_result, login_ui_result) == \
                ((True, True, True, True, False, True, False, True, True, True, False, True),
                 (True, True, True, True, True, True, True, True, True, False, True, True))
-
+    '''
 if __name__ == "__main__":
     pytest.main(["-v", "-s", "--alluredir","./test_results"]) # use pytest test_main_page.py
     # os.system("allure generate ./test_results -o ./test_report")

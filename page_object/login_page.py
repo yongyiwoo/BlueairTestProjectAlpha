@@ -44,6 +44,7 @@ class LoginPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
+    '''
     def main_page_login_status(self):
         """
         check if the app is logged in or not
@@ -51,11 +52,12 @@ class LoginPage(BasePage):
         """
         try:
             main_page = page_object.main_page.MainPage(self.driver)
-            side_menu_status = main_page.check_side_menu_status()
-            login_status = main_page.check_login_status()
+            side_menu_status = main_page.check_side_menu_appears()
+            login_status = main_page.check_login_appears()
             return side_menu_status, login_status
         except exceptions.TimeoutException:
             return False # There is no Sign in button
+    '''
 
     def wait_until_unregistered_email_message_appears(self):
         """
@@ -125,7 +127,7 @@ class LoginPage(BasePage):
         try:
             popup_text_element = self.locate_element(self.popup_text, waiting_time=20)
             connection_lost= self.get_element_attribute(popup_text_element, "text")
-            if connection_lost == "The Internet connection appears to be offline.":
+            if connection_lost == "Please check your internet connection":
                 return True
             else:
                 return False # The popup text does not match

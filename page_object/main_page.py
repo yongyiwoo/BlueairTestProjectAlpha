@@ -746,7 +746,7 @@ class MainPage(BasePage):
             # self.save_image(screenshot_base64, self.tap_user_login.__name__)
             return False
 
-    def check_login_status(self):
+    def check_login_appears(self):
         """
         check if the sign in button appears
         :return: True, if appears, False, if disappears
@@ -760,7 +760,7 @@ class MainPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def check_side_menu_status(self):
+    def check_side_menu_appears(self):
         """
         check if the side menu appears
         :return:
