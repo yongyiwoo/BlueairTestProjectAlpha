@@ -544,7 +544,7 @@ class TestMainPage(object):
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
-    
+    '''
     @allure.story("02 test login with invalid username and a password")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_login_with_invalid_username_and_a_password(self, common_driver):
@@ -943,7 +943,7 @@ class TestMainPage(object):
         login_pages.navigate_back(2)  # navigate back to login page then to main page
 
         assert privacy_policy_result == True
-
+    '''
     ####################################################################################################
     #                                    forgot password test cases                                    #
     ####################################################################################################
