@@ -6,7 +6,9 @@ from appium import webdriver
 class ProfilePage(BasePage):
     def __init__(self, common_driver):
         super(ProfilePage, self).__init__(common_driver)
-        self.profile = (MobileBy.ID, "android:id/content")
+        #self.profile = (MobileBy.ID, "android:id/content") # shouldn't use this element
+        self.profile_account = (MobileBy.ID, "com.blueair.android:id/txtAccountTitle")
+        self.profile_address = (MobileBy.ID, "com.blueair.android:id/txtAddressTitle")
         self.email = (MobileBy.ID, "com.blueair.android:id/email")
         self.first_name = (MobileBy.ID, "com.blueair.android:id/firstName")
         self.last_name = (MobileBy.ID, "com.blueair.android:id/lastName")
@@ -14,8 +16,10 @@ class ProfilePage(BasePage):
 
     def check_profile_page_appears(self):
         try:
-            profile_element = self.locate_element(self.profile, waiting_time=20)
-            if type(profile_element) is webdriver.WebElement:
+            profile_account_element = self.locate_element(self.profile_account, waiting_time=20)
+            profile_address_element = self.locate_element(self.profile_address, waiting_time=20)
+            if type(profile_account_element) is webdriver.WebElement and \
+                    type(profile_address_element) is webdriver.WebElement:
                 return True
             else:
                 return False
@@ -29,7 +33,11 @@ class ProfilePage(BasePage):
         """
         try:
             profile_email_element = self.locate_element(self.email)
-            profile_email_text = self.get_element_attribute(profile_email_element, "text")
+            # sometimes page loading needs some time
+            while True:
+                profile_email_text = self.get_element_attribute(profile_email_element, "text")
+                if profile_email_text != "Email":
+                    break
             return profile_email_text
         except exceptions.TimeoutException:
             return False  # #

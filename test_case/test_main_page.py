@@ -540,7 +540,7 @@ class TestMainPage(object):
         message_shows_up_result = login_pages.wait_until_unregistered_email_message_appears()
         login_pages.close_login_page()
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_appears():
+        if not main_page.check_side_menu_icon_appears():
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
@@ -570,7 +570,7 @@ class TestMainPage(object):
         message_shows_up_result = login_pages.wait_until_invalid_email_message_appears()
         login_pages.close_login_page()
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_appears():
+        if not main_page.check_side_menu_icon_appears():
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
@@ -598,7 +598,7 @@ class TestMainPage(object):
         login_pages.close_login_page()
 
         login_result = main_page.check_login_appears()
-        side_menu_result = main_page.check_side_menu_appears()
+        side_menu_result = main_page.check_side_menu_icon_appears()
 
         assert (login_result, side_menu_result) == (True, True)
 
@@ -653,7 +653,7 @@ class TestMainPage(object):
         message_shows_up_result = login_pages.wait_until_invalid_password_message_appears()
         login_pages.navigate_back()
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_appears():
+        if not main_page.check_side_menu_icon_appears():
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
@@ -685,7 +685,7 @@ class TestMainPage(object):
         login_pages.close_login_page()
         main_page.set_connection(6)
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_appears():
+        if not main_page.check_side_menu_icon_appears():
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
@@ -713,7 +713,7 @@ class TestMainPage(object):
         login_pages.close_login_page()
 
         login_result = main_page.check_login_appears()
-        side_menu_result = main_page.check_side_menu_appears()
+        side_menu_result = main_page.check_side_menu_icon_appears()
 
         assert (login_result, side_menu_result) == (True, True)
     
@@ -739,7 +739,7 @@ class TestMainPage(object):
         login_pages.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
 
         login_result = main_page.check_login_appears()
-        side_menu_result = main_page.check_side_menu_appears()
+        side_menu_result = main_page.check_side_menu_icon_appears()
 
         assert (login_result, side_menu_result) == (False, True)
 
@@ -770,7 +770,7 @@ class TestMainPage(object):
             side_menu_pages.close_side_menu_use_close_button()
 
             login_result = main_page.check_login_appears()
-            side_menu_result = main_page.check_side_menu_appears()
+            side_menu_result = main_page.check_side_menu_icon_appears()
 
         assert (login_result, side_menu_result) == (True, True)
 
@@ -795,9 +795,9 @@ class TestMainPage(object):
         login_pages.tap_continue_with_facebook()
 
         login_result = main_page.check_login_appears()
-        side_menu_result = main_page.check_side_menu_appears()
+        side_menu_result = main_page.check_side_menu_icon_appears()
         # sometimes facebook has some issues and cannot login, so to make sure back to the main page
-        if not main_page.check_side_menu_appears():
+        if not main_page.check_side_menu_icon_appears():
             login_pages.navigate_back()
 
         assert (login_result, side_menu_result) == (True, False)
@@ -829,7 +829,7 @@ class TestMainPage(object):
             side_menu_pages.close_side_menu_use_close_button()
 
             login_result = main_page.check_login_appears()
-            side_menu_result = main_page.check_side_menu_appears()
+            side_menu_result = main_page.check_side_menu_icon_appears()
 
         assert (login_result, side_menu_result) == (True, True)
 
@@ -855,10 +855,10 @@ class TestMainPage(object):
         login_pages.tap_continue_with_google()
 
         login_result = main_page.check_login_appears()
-        side_menu_result = main_page.check_side_menu_appears()
+        side_menu_result = main_page.check_side_menu_icon_appears()
 
         # sometimes google has some issues and cannot login, so to make sure back to the main page
-        if not main_page.check_side_menu_appears():
+        if not main_page.check_side_menu_icon_appears():
             login_pages.navigate_back()
 
         assert (login_result, side_menu_result) == (False, True)
@@ -890,7 +890,7 @@ class TestMainPage(object):
             side_menu_pages.close_side_menu_use_close_button()
 
             login_result = main_page.check_login_appears()
-            side_menu_result = main_page.check_side_menu_appears()
+            side_menu_result = main_page.check_side_menu_icon_appears()
 
         assert (login_result, side_menu_result) == (True, True)
 
@@ -947,7 +947,7 @@ class TestMainPage(object):
     ####################################################################################################
     #                                    forgot password test cases                                    #
     ####################################################################################################
-    '''
+
     @allure.story("16 test forgot password reset success")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_forgot_password_reset_success(self, common_driver):
@@ -1014,7 +1014,7 @@ class TestMainPage(object):
         message_shows_up_result = forgot_password_page.wait_until_invalid_email_message_appears()
 
         forgot_password_page.close_forgot_password_page_use_close_button()
-        main_page_status_result = main_page.check_login_status()
+        main_page_status_result = main_page.check_login_appears()
 
         assert message_shows_up_result, main_page_status_result == (True, True)
 
@@ -1042,9 +1042,9 @@ class TestMainPage(object):
 
         main_page.tap_user_login()
         login_pages.tap_forgot_password()
-        forgot_password_page.input_username_reset_password("test_202202@mailinator")
+        forgot_password_page.input_username_reset_password("unregistered@mailinator.com")
 
-        message_shows_up_result = forgot_password_page.wait_until_invalid_email_message_appears()
+        message_shows_up_result = forgot_password_page.wait_until_unregistered_email_message_appears()
 
         forgot_password_page.close_forgot_password_page_use_back_button()
         login_page_status_result = login_pages.check_login_page_status()
@@ -1082,15 +1082,15 @@ class TestMainPage(object):
         login_pages.close_login_page()
         main_page.set_connection(6)
         # sometimes checking needs more time, so to make sure back to the main page
-        if not main_page.check_side_menu_status():
+        if not main_page.check_side_menu_icon_appears():
             login_pages.navigate_back()
 
         assert message_shows_up_result == True
-    '''
+
     ####################################################################################################
     #                                        register test cases                                       #
     ####################################################################################################
-    '''
+
     @allure.story("20 test register without filling required fields")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_without_filling_required_fields(self, common_driver):
@@ -1142,7 +1142,7 @@ class TestMainPage(object):
         register_page.close_register_page_use_close_button()
 
         assert register_result == ((True, True, True, True), (False, False, False, False))
-    
+
     @allure.story("21 test register password match")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_password_match(self, common_driver):
@@ -1179,14 +1179,17 @@ class TestMainPage(object):
         password_match_error_message_result = register_page.check_password_does_not_match_message_appears()
         error_message_appears_result_with_empty_password = password_match_error_message_result
 
-        register_page.input_required_fields_register("", "", "", "", "Abcd1234.", "Abcd1234.", False, False, False,
-                                                     False)
+        # change the password field to blank because don't need to input anything
+        # need to refactor, refer to test_register_without_filling_required_fields
+        register_page.input_required_fields_register("", "", "", "", "", "Abcd1234.", False, False, False, False)
 
         # there are several redundant scroll up, because of trying to find error messages (but error messages disappear)
         password_match_error_message_result = register_page.check_password_does_not_match_message_appears()
         error_message_disappears_result = password_match_error_message_result
 
-        register_page.input_required_fields_register("", "", "", "", "Abcd1234.", "Abcd1234..", False, False, False,
+        # change the password field to blank because don't need to input anything
+        # need to refactor, refer to test_register_without_filling_required_fields
+        register_page.input_required_fields_register("", "", "", "", "", "Abcd1234..", False, False, False,
                                                      False)
         password_match_error_message_result = register_page.check_password_does_not_match_message_appears()
         error_message_appears_result_with_different_password = password_match_error_message_result
@@ -1197,7 +1200,7 @@ class TestMainPage(object):
         register_page.close_register_page_use_close_button()
 
         assert register_result == (True, False, True)
-    
+
     @allure.story("22 test register password complexity")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_register_password_complexity(self, common_driver):
@@ -1448,6 +1451,7 @@ class TestMainPage(object):
         result:
         1. the app accepts the new registration
         2. the app goes back to the main page with logged in
+        3. the app logged out
         :param common_driver:
         :return: pass, if not logged in
         """
@@ -1463,13 +1467,13 @@ class TestMainPage(object):
         register_page.input_required_fields_register("Firstname", "Lastname", date_time + "@mailinator.com",
                                                      "1234567890", "Abcd1234.", "Abcd1234.", True, True, True, True)
 
-        login_button_result = main_page.check_login_status()
-        side_menu_result = main_page.check_side_menu_status()
+        login_button_result = main_page.check_login_appears()
+        side_menu_result = main_page.check_side_menu_icon_appears()
 
         main_page.tap_side_menu()
         side_menu_pages.tap_profile()
         profile_email_text = profile_page.get_email_info()
-        if profile_email_text == "test_" + date_time + "@mailinator.com":
+        if profile_email_text == date_time + "@mailinator.com":
             profile_email_result = True
         else:
             profile_email_result = False
@@ -1481,7 +1485,7 @@ class TestMainPage(object):
             profile_first_name_result = False
             
         profile_last_name_text = profile_page.get_last_name_info()
-        if profile_last_name_text == "Firstname":
+        if profile_last_name_text == "Lastname":
             profile_last_name_result = True
         else:
             profile_last_name_result = False
@@ -1495,17 +1499,17 @@ class TestMainPage(object):
 
         main_page.tap_side_menu()
         log_out_button_result = side_menu_pages.check_log_out_appears()
-        side_menu_pages.tap_log_out()
+        side_menu_pages.tap_log_out(True)
         side_menu_pages.close_side_menu_use_close_button()
 
         register_result = (login_button_result, side_menu_result, profile_email_result, profile_first_name_result, 
-                           profile_first_name_result, profile_phone_number_result, log_out_button_result)
+                           profile_last_name_result, profile_phone_number_result, log_out_button_result)
         assert register_result == (False, True, True, True, True, True, True)
-    '''
+
     ####################################################################################################
     #                                       side menu test cases                                       #
     ####################################################################################################
-    '''
+
     @allure.story("28 test side menu open close")
     @allure.severity(allure.severity_level.NORMAL)
     def test_side_menu_open_close(self, common_driver):
@@ -1603,14 +1607,29 @@ class TestMainPage(object):
         :return:
         """
         main_page = MainPage(common_driver)
+        login_page = LoginPage(common_driver)
         side_menu_pages = SideMenuPages(common_driver)
         profile_page = ProfilePage(common_driver)
+
+        # check if the app is logged in, profile only appears with logged in
+        if main_page.check_login_appears():
+            main_page.tap_user_login()
+            login_page.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
 
         main_page.tap_side_menu()
         side_menu_pages.tap_profile()
         profile_result = profile_page.check_profile_page_appears()
 
-        profile_page.navigate_back()
+        # check side_menu appears, close the side menu if True
+        if side_menu_pages.check_side_menu_appears():
+            side_menu_pages.close_side_menu_use_close_button()
+        else:
+            profile_page.navigate_back()
+
+        if not main_page.check_login_appears():
+            main_page.tap_side_menu()
+            side_menu_pages.tap_log_out(True)
+            side_menu_pages.close_side_menu_use_close_button()
 
         assert profile_result == True
 
@@ -1655,13 +1674,28 @@ class TestMainPage(object):
         :return:
         """
         main_page = MainPage(common_driver)
+        login_page = LoginPage(common_driver)
         side_menu_pages = SideMenuPages(common_driver)
+
+        # check if the app is logged in, voice assistants only appears with logged in
+        if main_page.check_login_appears():
+            main_page.tap_user_login()
+            login_page.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
 
         main_page.tap_side_menu()
         side_menu_pages.tap_voice_assistants()
         voice_assistants_result = side_menu_pages.check_voice_assistants_page_appears()
 
-        side_menu_pages.navigate_back()
+        # check side_menu appears, close the side menu if True
+        if side_menu_pages.check_side_menu_appears():
+            side_menu_pages.close_side_menu_use_close_button()
+        else:
+            side_menu_pages.navigate_back()
+
+        if not main_page.check_login_appears():
+            main_page.tap_side_menu()
+            side_menu_pages.tap_log_out(True)
+            side_menu_pages.close_side_menu_use_close_button()
 
         assert voice_assistants_result == True
 
@@ -1736,6 +1770,11 @@ class TestMainPage(object):
         """
         main_page = MainPage(common_driver)
         side_menu_pages = SideMenuPages(common_driver)
+        login_page = LoginPage(common_driver)
+
+        if main_page.check_login_appears():
+            main_page.tap_user_login()
+            login_page.input_username_password_login("test_202202@mailinator.com", "Abcd1234.")
 
         main_page.tap_side_menu()
         side_menu_pages.tap_log_out(False)
@@ -1748,7 +1787,7 @@ class TestMainPage(object):
 
         side_menu_pages.close_side_menu_use_close_button()
 
-        login_result = main_page.check_login_status()
+        login_result = main_page.check_login_appears()
 
         assert (login_result, sign_in_result, log_out_result, profile_result, voice_assistants_result) == \
                (True, True, False, False, False)
@@ -1795,10 +1834,13 @@ class TestMainPage(object):
                            side_menu_pages.check_log_out_appears(),
                            side_menu_pages.check_app_version_appears())
 
+        side_menu_pages.tap_log_out(True)
+        side_menu_pages.close_side_menu_use_close_button()
+
         assert (logout_ui_result, login_ui_result) == \
                ((True, True, True, True, False, True, False, True, True, True, False, True),
                 (True, True, True, True, True, True, True, True, True, False, True, True))
-    '''
+
 if __name__ == "__main__":
     pytest.main(["-v", "-s", "--alluredir","./test_results"]) # use pytest test_main_page.py
     # os.system("allure generate ./test_results -o ./test_report")

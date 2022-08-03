@@ -455,8 +455,6 @@ class MainPage(BasePage):
                     break
             return True
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
-            self.save_image(screenshot_base64, self.tap_auto_mode.__name__)
             return False
 
     def tap_night_mode(self, press_status):
@@ -478,8 +476,6 @@ class MainPage(BasePage):
                     break
             return True
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
-            self.save_image(screenshot_base64, self.tap_night_mode.__name__)
             return False
 
     def swipe_device_layout_left_back(self):
@@ -630,8 +626,6 @@ class MainPage(BasePage):
                     break
             return True
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
-            self.save_image(screenshot_base64, self.tap_standby_mode.__name__)
             return False
 
     def swipe_device_layout_right_back(self):
@@ -727,8 +721,6 @@ class MainPage(BasePage):
             # side_menu = SideMenuPage(self.driver)
             # return side_menu
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
-            self.save_image(screenshot_base64, self.tap_side_menu.__name__)
             return
 
     def tap_user_login(self):
@@ -742,8 +734,6 @@ class MainPage(BasePage):
             # user_login = LoginPage(self.driver)
             # return user_login
         except exceptions.TimeoutException:
-            # screenshot_base64 = self.get_screenshot64()
-            # self.save_image(screenshot_base64, self.tap_user_login.__name__)
             return False
 
     def check_login_appears(self):
@@ -760,7 +750,7 @@ class MainPage(BasePage):
         except exceptions.TimeoutException:
             return False
 
-    def check_side_menu_appears(self):
+    def check_side_menu_icon_appears(self):
         """
         check if the side menu appears
         :return:

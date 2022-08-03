@@ -48,26 +48,32 @@ class RegisterPage(BasePage):
         try:
             if first_name != "":
                 first_name_element = self.locate_element(self.first_name)
+                #print("firstname")
                 self.tap_element(first_name_element)
                 self.set_element_text(first_name_element, first_name)
             if last_name != "":
                 last_name_element = self.locate_element(self.last_name)
+                #print("lastname")
                 self.tap_element(last_name_element)
                 self.set_element_text(last_name_element, last_name)
             if email != "":
                 email_element = self.locate_element(self.email)
+                #print("email")
                 self.tap_element(email_element)
                 self.set_element_text(email_element, email)
             if phone_number != "":
                 phone_number_element = self.locate_element(self.phone_number)
+                #print("phonenumber")
                 self.tap_element(phone_number_element)
                 self.set_element_text(phone_number_element, phone_number)
             if password != "":
                 password_element = self.locate_element(self.password)
+                #print("password")
                 self.tap_element(password_element)
                 self.set_element_text(password_element, password)
             if confirm_password != "":
                 confirm_password_element = self.locate_element(self.confirm_password)
+                #print("confirmpassword")
                 self.tap_element(confirm_password_element)
                 self.set_element_text(confirm_password_element, confirm_password)
         except exceptions.TimeoutException:
@@ -80,9 +86,11 @@ class RegisterPage(BasePage):
             for _ in range(2):
                 try:
                     age_limit_element = self.locate_element(self.age_limit)
+                    #print("agelimit")
                     self.tap_element(age_limit_element)
                     break
                 except exceptions.TimeoutException:
+                    #print("agelimitscrolldown")
                     start_position_percent = self.set_position_on_screen((75, 75))
                     end_position_percent = self.set_position_on_screen((25, 25))
                     self.scroll_screen(start_position_percent, end_position_percent)
@@ -91,12 +99,12 @@ class RegisterPage(BasePage):
             # swipe 2 times to find the subscription element
             for _ in range(2):
                 try:
-                    #print("blueair subscription tap")
                     blueair_subscription_element = self.locate_element(self.blueair_subscription)
+                    #print("blueairsubscription")
                     self.tap_element(blueair_subscription_element)
                     break
                 except exceptions.TimeoutException:
-                    #print("blueair subscription scroll")
+                    #print("blueairsubscriptionscrolldown")
                     start_position_percent = self.set_position_on_screen((75, 75))
                     end_position_percent = self.set_position_on_screen((25, 25))
                     self.scroll_screen(start_position_percent, end_position_percent)
@@ -105,12 +113,12 @@ class RegisterPage(BasePage):
             # swipe 2 times to find the data share element
             for _ in range(2):
                 try:
-                    #print("unilever data share tap")
                     unilever_data_share_element = self.locate_element(self.unilever_data_share)
+                    #print("unileverdatashare")
                     self.tap_element(unilever_data_share_element)
                     break
                 except exceptions.TimeoutException:
-                    #print("unilever data share scroll")
+                    #print("unileverdatasharescrolldown")
                     start_position_percent = self.set_position_on_screen((75, 75))
                     end_position_percent = self.set_position_on_screen((25, 25))
                     self.scroll_screen(start_position_percent, end_position_percent)
@@ -119,12 +127,12 @@ class RegisterPage(BasePage):
             # swipe 2 times to find agree documents element
             for _ in range(2):
                 try:
-                    #print("agree documents tap")
                     agree_documents_element = self.locate_element(self.agree_documents)
+                    #print("agreedocuments")
                     self.tap_element(agree_documents_element)
                     break
                 except exceptions.TimeoutException:
-                    #print("agree documents scroll")
+                    #print("agreedocumentsscrolldown")
                     start_position_percent = self.set_position_on_screen((75, 75))
                     end_position_percent = self.set_position_on_screen((25, 25))
                     self.scroll_screen(start_position_percent, end_position_percent)

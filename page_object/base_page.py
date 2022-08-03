@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from appium.webdriver.common.touch_action import TouchAction
@@ -105,6 +107,7 @@ class BasePage(object):
         :return:
         """
         self.driver.set_network_connection(connection_type)
+        time.sleep(5)
 
     def get_phone_settings(self):
         """
