@@ -42,7 +42,7 @@ class AddDustmagnetPages(AddDevicePages):
             else:
                 device_name_text_result = False
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.add_device_process.__name__ + "_device_name")
             device_name_text_result = None
 
@@ -57,7 +57,7 @@ class AddDustmagnetPages(AddDevicePages):
             # navigate to "connect to wifi" page
             self.tap_element(device_model_element)
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.add_device_process.__name__ + "_device_model")
             device_model_text_result = None
 
@@ -65,9 +65,9 @@ class AddDustmagnetPages(AddDevicePages):
             device_image_element = self.locate_element(self.device_image)
             device_image_bin = self.get_screenshotpng()
             print(device_image_bin)
-            device_image_base64 = self.get_screenshot64(device_image_element)
+            device_image_base64 = self.get_screenshot_base64(device_image_element)
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.add_device_process.__name__ + "_device_image")
 
 
@@ -92,7 +92,7 @@ class AddDustmagnetPages(AddDevicePages):
             password_submit_element = self.locate_element(self.password_submit)
             self.tap_element(password_submit_element)
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.add_device_process.__name__ + "_wifi")
 
         try:
@@ -105,7 +105,7 @@ class AddDustmagnetPages(AddDevicePages):
             next_done_element = self.locate_element(self.next_done)
             self.tap_element(next_done_element)
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.add_device_process.__name__ + "_custom_name")
         try:
             # use page_object.main_page.MainPage because of circular import

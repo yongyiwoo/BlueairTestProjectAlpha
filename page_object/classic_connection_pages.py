@@ -16,7 +16,7 @@ class ClassicConnectionPages(DeviceConnectionPages):
         self.input_name = (MobileBy.ID, "com.blueair.android:id/editTextDeviceName")
 
 
-    def tap_device_model(self):
+    def tap_device_name(self):
         """
         tap the device model: "HealthProtect", "DustMagnet", "Classic", "Sense+", "Aware", "Cabin Air P2i"
         :return: model with name and image (if possible)
@@ -51,20 +51,20 @@ class ClassicConnectionPages(DeviceConnectionPages):
                     model_name = self.get_element_attribute(model_xpath_name_element, "text")
                     model_info[model_name] = model_xpath_name_element
                 except exceptions.TimeoutException:
-                    screenshot_base64 = self.get_screenshot64()
-                    self.save_image(screenshot_base64, self.tap_device_model.__name__ + "_model_name")
+                    screenshot_base64 = self.get_screenshot_base64()
+                    self.save_image(screenshot_base64, self.tap_device_name.__name__ + "_model_name")
                     model_info[str(n)] = "Error"
 
                 if model_name == "HealthProtect" or model_name == "DustMagnet":
                     try:
                         model_xpath_image_element = self.locate_element(model_xpath_image_info)
                         model_xpath_image_coordinates = self.get_element_coordinates(model_xpath_image_element)
-                        screenshot_base64 = self.get_screenshot64()
-                        model_image = self.crop_screenshot(screenshot_base64, model_xpath_image_coordinates)
+                        screenshot_base64 = self.get_screenshot_base64()
+                        model_image = self.crop_screenshot_and_compress_as_string(screenshot_base64, model_xpath_image_coordinates)
                         model_info[model_name + "_image"] = model_image
                     except exceptions.TimeoutException:
-                        screenshot_base64 = self.get_screenshot64()
-                        self.save_image(screenshot_base64, self.tap_device_model.__name__ + "_model_image")
+                        screenshot_base64 = self.get_screenshot_base64()
+                        self.save_image(screenshot_base64, self.tap_device_name.__name__ + "_model_image")
                         model_info[model_name + "_image"] = None
 
                 # format: {"model_name": {"model_name": model_xpath_name_element, "model_name_image": model_image}}
@@ -89,7 +89,7 @@ class ClassicConnectionPages(DeviceConnectionPages):
             self.tap_element(next_page_element)
             return True
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.find_device_page.__name__)
             return None
 
@@ -106,7 +106,7 @@ class ClassicConnectionPages(DeviceConnectionPages):
                 self.tap_element(next_page_element)
                 return
             except exceptions.TimeoutException:
-                screenshot_base64 = self.get_screenshot64()
+                screenshot_base64 = self.get_screenshot_base64()
                 self.save_image(screenshot_base64, self.connect_wifi_page.__name__)
                 return
 
@@ -125,7 +125,7 @@ class ClassicConnectionPages(DeviceConnectionPages):
             self.tap_element(next_page_element)
             return
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.name_device_page.__name__)
             return
 

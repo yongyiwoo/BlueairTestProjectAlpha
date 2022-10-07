@@ -28,6 +28,10 @@ class BasePage(object):
         element_list = WebDriverWait(self.driver, waiting_time).until(ec.visibility_of_all_elements_located(element_id))
         return element_list
 
+    def get_element_disappearance(self, element, waiting_time=1):
+        invisibility = WebDriverWait(self.driver, waiting_time).until((ec.invisibility_of_element(element)))
+        return invisibility
+
     def get_screen_size(self):
         screen_size = self.driver.get_window_size()
 
@@ -55,12 +59,13 @@ class BasePage(object):
         TouchAction(self.driver).press(x=original_x, y=original_y).wait(1600). \
             move_to(x=destination_x, y=destination_y).release().perform()
 
-    def get_screenshot64(self):
+    def get_screenshot_base64(self):
         """
         get a screenshot of the current UI as a base64 string
         :return: base64 string
         """
         screen_image = self.driver.get_screenshot_as_base64()
+        #print(screen_image)
         return screen_image
 
     def navigate_back(self, n=1):
@@ -128,7 +133,79 @@ class BasePage(object):
         return self.driver.desired_capabilities
 
     @staticmethod
-    def crop_screenshot(base64_image, coordinates):
+    def crop_screenshot_and_compress_as_string(base64_image, coordinates):
+        """
+        crop the image according to the coordinates and compress it to a string
+        :param base64_image: base64 image
+        :param coordinates: cropped image coordinates
+        :return: a string
+        """
+        x = int(coordinates["x"])
+        y = int(coordinates["y"])
+        h = int(coordinates["height"])
+        w = int(coordinates["width"])
+        # base64 image
+        #print(base64_image)
+        # byte image
+        byte_image = base64.b64decode(base64_image)
+        #print(byte_image)
+        numpy_array_image = np.frombuffer(byte_image, np.uint8)
+        #print(numpy_array_image)
+        image = cv2.imdecode(numpy_array_image, cv2.IMREAD_GRAYSCALE) #cv2.IMREAD_COLOR for RGB cv2.IMREAD_GRAYSCALE for gray
+        #print(image)
+        cropped_image = image[y:y+h, x:x+w]
+        #cv2.imwrite("cropped_image.png", cropped_image) # pass
+        #print(cropped_image.shape[0])#height
+        #print(cropped_image.shape[1])#width
+        #print(cropped_image.shape[2])#rgb
+        #print(cropped_image)
+        ##################################################
+        _, binary_image = cv2.threshold(cropped_image, 230, 255, cv2.THRESH_BINARY)
+        #cv2.imwrite(str(time.time()) + "cropped_device_resize_binary_image.png", cropped_device_resize_binary_image)
+        test_find_element = np.where(binary_image != 255)
+
+        #test_find_element = np.where(cropped_image != 255)
+        #test_find_element = np.where(cropped_image < 247)
+
+        #print(test_find_element)
+        # print(min(test_find_element[0]))
+        # print(max(test_find_element[0]))
+        # print(min(test_find_element[1]))
+        # print(max(test_find_element[1]))
+        #cropped_device_image = cropped_image[min(test_find_element[0]):max(test_find_element[0]), min(test_find_element[1]):max(test_find_element[1])]
+        cropped_device_binary_image = binary_image[min(test_find_element[0]):max(test_find_element[0]), min(test_find_element[1]):max(test_find_element[1])]
+
+        #cv2.imwrite(str(time.time()) + "cropped_device_image.png", cropped_device_binary_image)
+        '''
+        with open('testfile.txt', 'a') as the_file:
+            for cdi in cropped_device_image:
+                the_file.write(str(cdi))
+        '''
+
+
+        #cv2.imwrite(str(time.time())+"cropped_device_image.png", cropped_device_image) # pass
+
+        #cropped_device_resize_image = cv2.resize(cropped_device_image, (6, 12))  # (24, 48)
+        #cropped_device_resize_binary_image = cv2.resize(cropped_device_binary_image, (6, 12)) # (24, 48)
+        cropped_device_resize_binary_image = cv2.resize(cropped_device_binary_image, (6, 12))
+        #cv2.imwrite(str(time.time())+"cropped_device_image_resize.png", cropped_device_resize_binary_image)
+        #print(cropped_device_resize_binary_image)
+
+
+
+        _, cropped_device_resize_binary_image = cv2.threshold(cropped_device_resize_binary_image, 100, 255, cv2.THRESH_BINARY)
+        #cv2.imwrite(str(time.time()) + "cropped_device_resize_binary_image.png", cropped_device_resize_binary_image)
+        #print(cropped_device_resize_binary_image)
+
+        byte_cropped_device_resize_binary_image = cropped_device_resize_binary_image.tobytes()
+        #print(byte_cropped_device_resize_image)
+        base64_cropped_device_resize_binary_image = base64.b64encode(byte_cropped_device_resize_binary_image)
+        base64_cropped_device_resize_binary_image_string = base64_cropped_device_resize_binary_image.decode("utf-8")
+
+        return base64_cropped_device_resize_binary_image_string
+
+    @staticmethod
+    def crop_screenshot_and_convert_as_array(base64_image, coordinates):
         """
         use numpy to convert base64 image to an array and crop it according to the coordinates
         :param base64_image: base64 image

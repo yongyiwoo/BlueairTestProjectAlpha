@@ -22,38 +22,9 @@ class DustMagnetConnectionPages(DeviceConnectionPages):
         self.custom_name = (MobileBy.ID, "com.blueair.android:id/customer_purifier_name_layout")
         self.input_name = (MobileBy.ID, "com.blueair.android:id/editText")
         self.save_name = (MobileBy.ID, "com.blueair.android:id/ok_view")
-        # need to check the cancel button UI overlap issue
         # self.cancel_name = (MobileBy.ID, "com.blueair.android:id/cancel_view")
         self.next_done = (MobileBy.ID, "com.blueair.android:id/buttonDone")
         #self.retry_process = (MobileBy.ID, "com.blueair.android:id/button_restart")
-
-    def tap_device_model(self):
-        """
-        tap the device model: "HealthProtect", "DustMagnet", "Classic", "Sense+", "Aware", "Cabin Air P2i"
-        :return: True, if select the model; None, if error
-        """
-        counter = 0
-        while True:
-            try:
-                # get models from the list (based on different regions, model list will be different)
-                model_name_list_elements = self.locate_element_list(self.model_name_list)
-                # iterate to find the air purifier
-                for model_name_list_element in model_name_list_elements:
-                    model_name_text = self.get_element_attribute(model_name_list_element, "text")
-                    if model_name_text == "DustMagnet":
-                        self.tap_element(model_name_list_element)
-                        return True
-            except exceptions.TimeoutException:
-                # swipe up the screen
-                start_position_percent = self.set_position_on_screen((75, 75))
-                end_position_percent = self.set_position_on_screen((50, 50))
-                self.scroll_screen(start_position_percent, end_position_percent)
-            # to stop the loop in 3 times
-            counter += 1
-            if counter > 2:
-                break
-            # print("Class: {} method: {} has an error".format(self.__class__.__name__, self.tap_device_model.__name__))
-            return None
 
     def find_device_page(self):
         """

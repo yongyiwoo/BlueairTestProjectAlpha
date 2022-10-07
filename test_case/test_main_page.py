@@ -12,7 +12,11 @@ from page_object.settings_pages import SettingsPages
 from page_object.profile_page import ProfilePage
 from page_object.dustmagnet_connection_pages import DustMagnetConnectionPages
 from page_object.dustmagnet_detail_pages import DustMagnetDetailPages
+
+#from page_object.device_connection_pages import DeviceConnectionPages
+#from page_object.new_device_connection_pages import NewDeviceConnectionPages
 from page_object.healthprotect_connection_pages import HealthProtectConnectionPages
+
 from page_object.classic_connection_pages import ClassicConnectionPages
 from util.file_manager import FileManager
 import pytest
@@ -39,30 +43,73 @@ class TestMainPage(object):
 
         assert device_added_result == "classic"
 
-
-    def test_add_g4_device(self, common_driver):   # add g4
+    '''
+    def test_onboard_healthprotect_device(self, common_driver):
         main_page = MainPage(common_driver)
         healthprotect_connection_pages = HealthProtectConnectionPages(common_driver)
-        main_page.device_connection_pages = healthprotect_connection_pages
-        healthprotect_select_page = main_page.add_new_device()
-        device_image_template = healthprotect_select_page.get("HealthProtect_image")
-        find_device_info = healthprotect_connection_pages.find_device_page()
-        if find_device_info is not None:
-            device_model_type = find_device_info[1]
-            device_image_small = find_device_info[2]
-        else:
-            device_model_type = None
-            device_image_small = None
-        image_compare_result = healthprotect_connection_pages.compare_screenshot(device_image_template, device_image_small)
-        healthprotect_connection_pages.connect_wifi_page("28116194")
-        healthprotect_connection_pages.name_device_page("g4_7710i")
-        device_added_result = healthprotect_connection_pages.finalize_device_page("g4_7710i")
 
-        assert device_model_type == "HealthProtect 7710i"
-        assert image_compare_result is True
-        assert device_added_result == "g4_7710i"
+        main_page.tap_connect_product()
 
+        # Blueair products page
+        device_image_result = healthprotect_connection_pages.check_device_image("HealthProtect")
+        healthprotect_connection_pages.tap_device_name("HealthProtect")
 
+        # Find your Device page
+        hp_7410i_index = healthprotect_connection_pages.locate_device_by_mac_address("A8:03:2A:EC:94:8C")
+        device_icon_result = healthprotect_connection_pages.check_device_icon(hp_7410i_index)
+        
+        device_name = healthprotect_connection_pages.check_device_name(hp_7410i_index)
+
+        device_model_type = healthprotect_connection_pages.check_model_name(hp_7410i_index)
+
+        device_connected_label = healthprotect_connection_pages.check_connected_label(hp_7410i_index)
+
+        device_connected_name = healthprotect_connection_pages.check_connected_name(hp_7410i_index)
+
+        search_message_status = healthprotect_connection_pages.check_search_message_appears()
+
+        search_icon_status = healthprotect_connection_pages.check_search_icon_appears()
+
+        # tap the device to onboard
+        healthprotect_connection_pages.tap_mac_address(hp_7410i_index)
+        device_connected_label_pressed = healthprotect_connection_pages.check_connected_label(hp_7410i_index)
+
+        search_message_status_pressed = healthprotect_connection_pages.check_search_message_appears()
+
+        search_icon_status_pressed = healthprotect_connection_pages.check_search_icon_appears()
+
+        # Wifi page
+        healthprotect_connection_pages.tap_wifi_ssid("Yongyi")
+        healthprotect_connection_pages.input_wifi_password("28116194")
+
+        # naming page
+        healthprotect_connection_pages.input_device_name("test7410i")
+
+        # navigate back to the main if the main page does not appear
+        while not main_page.check_side_menu_icon_appears():
+            if healthprotect_connection_pages.check_select_device_page_appears():
+                healthprotect_connection_pages.close_select_device_page()
+            else:
+                healthprotect_connection_pages.navigate_back()
+
+        # wait until the device is online then check the device status
+        device_onboard_status = main_page.get_device_status("test7410i", device_mode=True, aqi_level=True, offline_icon=True, aqi_icon=True,
+                                                                clean_air=True, clean_air_bar=True, welcome_home=True)
+
+        assert device_image_result is True
+        assert device_icon_result is True
+        assert device_name == "HealthProtect"
+        assert device_model_type == "HealthProtect 7410i"
+        assert device_connected_label == "Available"
+        assert device_connected_name is None
+        assert search_message_status is True
+        assert search_icon_status is True
+        assert device_connected_label_pressed == "Connecting…"
+        assert search_message_status_pressed is False
+        assert search_icon_status_pressed is False
+        assert device_onboard_status == ("test7410i", "Fan Speed 0%", "Excellent", "Blue", None, "Your air is clean!", "100.0", None)
+
+    '''
     @allure.story("test onboard b4 device")
     @allure.severity(allure.severity_level.BLOCKER)
     def test_onboard_b4_device(self, common_driver):
@@ -509,8 +556,8 @@ class TestMainPage(object):
         dustmagnet_connection_pages.put_foreground()
         device_onboard_result = main_page.get_devices_info("b4_5210i")
         assert device_onboard_result is None
+    
     '''
-
     ####################################################################################################
     #                                          login test cases                                        #
     ####################################################################################################

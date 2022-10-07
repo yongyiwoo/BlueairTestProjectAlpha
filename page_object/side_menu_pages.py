@@ -19,7 +19,7 @@ class SideMenuPages(BasePage):
         self.log_out_dismiss = (MobileBy.ID, "com.blueair.android:id/dismiss_button")
         # the elements in the side menu don't have IDs
         # may use resource id "com.blueair.android:id/design_menu_item_text"
-        self.side_menu_section = (MobileBy.ID, "com.blueair.android:id/design_menu_item_text")
+        self.side_menu_list = (MobileBy.ID, "com.blueair.android:id/design_menu_item_text")
         self.touchable_area = (MobileBy.ID, "com.blueair.android:id/drawerLayout")
         self.side_menu_area = (MobileBy.ID, "com.blueair.android:id/drawer_relative_layout")
 
@@ -77,8 +77,8 @@ class SideMenuPages(BasePage):
         :return: True, if appears, False, if disappears
         """
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Air Quality Map":
                     return True
@@ -88,8 +88,8 @@ class SideMenuPages(BasePage):
 
     def tap_air_quality_map(self):
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Air Quality Map":
                     self.tap_element(side_menu_section_element)
@@ -117,8 +117,8 @@ class SideMenuPages(BasePage):
         :return: True, if appears, False, if disappears
         """
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Blueair Store":
                     return True
@@ -128,8 +128,8 @@ class SideMenuPages(BasePage):
 
     def tap_blueair_store(self):
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Blueair Store":
                     self.tap_element(side_menu_section_element)
@@ -157,8 +157,8 @@ class SideMenuPages(BasePage):
         :return: True, if appears, False, if disappears
         """
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Profile":
                     return True
@@ -168,8 +168,8 @@ class SideMenuPages(BasePage):
 
     def tap_profile(self):
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Profile":
                     self.tap_element(side_menu_section_element)
@@ -183,8 +183,8 @@ class SideMenuPages(BasePage):
         :return: True, if appears, False, if disappears
         """
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Settings":
                     return True
@@ -194,8 +194,8 @@ class SideMenuPages(BasePage):
 
     def tap_settings(self):
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Settings":
                     self.tap_element(side_menu_section_element)
@@ -209,8 +209,8 @@ class SideMenuPages(BasePage):
         :return: True, if appears, False, if disappears
         """
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Voice Assistants":
                     return True
@@ -220,8 +220,8 @@ class SideMenuPages(BasePage):
 
     def tap_voice_assistants(self):
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Voice Assistants":
                     self.tap_element(side_menu_section_element)
@@ -249,8 +249,8 @@ class SideMenuPages(BasePage):
         :return: True, if appears, False, if disappears
         """
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Support":
                     return True
@@ -260,8 +260,8 @@ class SideMenuPages(BasePage):
 
     def tap_support(self):
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Support":
                     self.tap_element(side_menu_section_element)
@@ -289,8 +289,8 @@ class SideMenuPages(BasePage):
         :return: True, if appears, False, if disappears
         """
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Policies":
                     return True
@@ -300,8 +300,8 @@ class SideMenuPages(BasePage):
 
     def tap_policies(self):
         try:
-            side_menu_section_elements = self.locate_element_list(self.side_menu_section)
-            for side_menu_section_element in side_menu_section_elements:
+            side_menu_list_elements = self.locate_element_list(self.side_menu_list)
+            for side_menu_section_element in side_menu_list_elements:
                 side_menu_section_text = self.get_element_attribute(side_menu_section_element, "text")
                 if side_menu_section_text == "Policies":
                     self.tap_element(side_menu_section_element)

@@ -201,7 +201,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             graph_icon_coordinates = self.get_element_coordinates(graph_icon_element)
             # analyze the color of the device aqi icon
             graph_icon_image = self.analyze_screenshot_pixel_color(
-                self.crop_screenshot(self.get_screenshot64(), graph_icon_coordinates))
+                self.crop_screenshot_and_compress_as_string(self.get_screenshot_base64(), graph_icon_coordinates))
             return graph_icon_image
         except exceptions.TimeoutException:
             return graph_icon_image
@@ -302,7 +302,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 standby_mode_element = self.locate_element(self.standby_mode)
                 standby_mode_coordinates = self.get_element_coordinates(standby_mode_element)
                 button_status = self.analyze_button_pixel_color(
-                    self.crop_screenshot(self.get_screenshot64(), standby_mode_coordinates))
+                    self.crop_screenshot_and_compress_as_string(self.get_screenshot_base64(), standby_mode_coordinates))
                 if button_status == press_status:
                     break
                 # to stop the loop in 10 times
@@ -311,7 +311,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                     break
             return True
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.tap_standby_mode.__name__)
             return False
 
@@ -330,7 +330,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 manual_mode_element = self.locate_element(self.manual_mode)
                 manual_mode_coordinates = self.get_element_coordinates(manual_mode_element)
                 button_status = self.analyze_button_pixel_color(
-                    self.crop_screenshot(self.get_screenshot64(), manual_mode_coordinates))
+                    self.crop_screenshot_and_compress_as_string(self.get_screenshot_base64(), manual_mode_coordinates))
                 if button_status == press_status:
                     break
 
@@ -340,7 +340,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                     break
             return True
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.tap_manual_mode.__name__)
             return False
 
@@ -434,7 +434,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 auto_mode_element = self.locate_element(self.auto_mode)
                 auto_mode_coordinates = self.get_element_coordinates(auto_mode_element)
                 button_status = self.analyze_button_pixel_color(
-                    self.crop_screenshot(self.get_screenshot64(), auto_mode_coordinates))
+                    self.crop_screenshot_and_compress_as_string(self.get_screenshot_base64(), auto_mode_coordinates))
                 if button_status == press_status:
                     break
 
@@ -444,7 +444,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                     break
             return True
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.tap_auto_mode.__name__)
             return False
 
@@ -463,7 +463,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 night_mode_element = self.locate_element(self.night_mode)
                 night_mode_coordinates = self.get_element_coordinates(night_mode_element)
                 button_status = self.analyze_button_pixel_color(
-                    self.crop_screenshot(self.get_screenshot64(), night_mode_coordinates))
+                    self.crop_screenshot_and_compress_as_string(self.get_screenshot_base64(), night_mode_coordinates))
                 if button_status == press_status:
                     break
 
@@ -473,7 +473,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                     break
             return True
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.tap_night_mode.__name__)
             return False
 
@@ -524,7 +524,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             self.tap_element(filter_option_element)
             return
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_new_schedule.__name__)
             return
 
@@ -560,7 +560,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             if counter > 2:
                 break
         # if more than 3 times swiping cannot find the add schedule, trigger the error
-        screenshot_base64 = self.get_screenshot64()
+        screenshot_base64 = self.get_screenshot_base64()
         self.save_image(screenshot_base64, self.tap_add_schedule.__name__)
         return False
 
@@ -582,7 +582,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             if counter > 2:
                 break
         # if more than 3 times swiping cannot find the add schedule, trigger the error
-        screenshot_base64 = self.get_screenshot64()
+        screenshot_base64 = self.get_screenshot_base64()
         self.save_image(screenshot_base64, self.tap_add_more_schedule.__name__)
         return None
 
@@ -630,7 +630,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             start_time_element = self.locate_element(self.schedule_start_time, waiting_time=5)
             start_time_text = self.get_element_attribute(start_time_element, "text")
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_new_schedule.__name__)
             return None
 
@@ -657,7 +657,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             end_time_element = self.locate_element(self.schedule_end_time, waiting_time=5)
             end_time_text = self.get_element_attribute(end_time_element, "text")
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_new_schedule.__name__)
             return None
 
@@ -667,8 +667,8 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 self.tap_element(schedule_auto_mode_image_element)
                 # crop the auto mode icon
                 schedule_auto_mode_coordinates = self.get_element_coordinates(schedule_auto_mode_image_element)
-                screenshot_base64 = self.get_screenshot64()
-                schedule_auto_mode_image = self.crop_screenshot(screenshot_base64, schedule_auto_mode_coordinates)
+                screenshot_base64 = self.get_screenshot_base64()
+                schedule_auto_mode_image = self.crop_screenshot_and_compress_as_string(screenshot_base64, schedule_auto_mode_coordinates)
                 mode_image = schedule_auto_mode_image
                 schedule_auto_mode_text_element = self.locate_element(self.schedule_auto_mode_text)
                 schedule_auto_mode_text = self.get_element_attribute(schedule_auto_mode_text_element, "text")
@@ -678,8 +678,8 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 self.tap_element(schedule_night_mode_image_element)
                 # crop the night mode icon
                 schedule_night_mode_coordinates = self.get_element_coordinates(schedule_night_mode_image_element)
-                screenshot_base64 = self.get_screenshot64()
-                schedule_night_mode_image = self.crop_screenshot(screenshot_base64, schedule_night_mode_coordinates)
+                screenshot_base64 = self.get_screenshot_base64()
+                schedule_night_mode_image = self.crop_screenshot_and_compress_as_string(screenshot_base64, schedule_night_mode_coordinates)
                 mode_image = schedule_night_mode_image
                 schedule_night_mode_text_element = self.locate_element(self.schedule_night_mode_text)
                 schedule_night_mode_text = self.get_element_attribute(schedule_night_mode_text_element, "text")
@@ -689,8 +689,8 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 self.tap_element(schedule_manual_mode_image_element)
                 # crop the manual mode icon
                 schedule_manual_mode_coordinates = self.get_element_coordinates(schedule_manual_mode_image_element)
-                screenshot_base64 = self.get_screenshot64()
-                schedule_manual_mode_image = self.crop_screenshot(screenshot_base64, schedule_manual_mode_coordinates)
+                screenshot_base64 = self.get_screenshot_base64()
+                schedule_manual_mode_image = self.crop_screenshot_and_compress_as_string(screenshot_base64, schedule_manual_mode_coordinates)
                 mode_image = schedule_manual_mode_image
                 schedule_manual_mode_text_element = self.locate_element(self.schedule_manual_mode_text)
                 schedule_manual_mode_text = self.get_element_attribute(schedule_manual_mode_text_element, "text")
@@ -708,7 +708,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 self.scroll_screen((brightness_bar_start_x, brightness_bar_start_y),
                                    (brightness_bar_end_x, brightness_bar_end_y))
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_new_schedule.__name__)
             return None
 
@@ -734,7 +734,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                     break
             schedule_repeat_text = self.get_element_attribute(schedule_repeat_element, "text")
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_new_schedule.__name__)
             return None
 
@@ -771,7 +771,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 schedule_cancel_element = self.locate_element(self.schedule_cancel, waiting_time=5)
                 self.tap_element(schedule_cancel_element)
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_new_schedule.__name__)
             return None
 
@@ -806,8 +806,8 @@ class DustMagnetDetailPages(DeviceDetailPages):
                     #print("schedule_mode_text", schedule_mode_text)
                     schedule_icon_element = schedule_icon_elements[i]
                     schedule_icon_coordinates = self.get_element_coordinates(schedule_icon_element)
-                    screenshot_base64 = self.get_screenshot64()
-                    schedule_icon_image = self.crop_screenshot(screenshot_base64, schedule_icon_coordinates)
+                    screenshot_base64 = self.get_screenshot_base64()
+                    schedule_icon_image = self.crop_screenshot_and_compress_as_string(screenshot_base64, schedule_icon_coordinates)
                     schedule_time_element = schedule_time_elements[i]
                     schedule_time_text = self.get_element_attribute(schedule_time_element, "text")
                     #print("schedule_time_text", schedule_time_text)
@@ -901,7 +901,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 schedule_delete_cancel_element = self.locate_element(self.schedule_delete_cancel)
                 self.tap_element(schedule_delete_cancel_element)
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_new_schedule.__name__)
             return None
 
@@ -931,7 +931,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             if counter > 2:
                 break
         # if more than 3 times swiping cannot find the add schedule, return None
-        screenshot_base64 = self.get_screenshot64()
+        screenshot_base64 = self.get_screenshot_base64()
         self.save_image(screenshot_base64, self.tap_add_schedule.__name__)
         return None
 
@@ -958,7 +958,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                         self.tap_element(device_name_cancel_element)
                         return
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_device_name.__name__)
             return None
 
@@ -1005,7 +1005,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                     settings_value_text = self.get_element_attribute(settings_value_element, "text")
                     return settings_value_text
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_device_led.__name__)
             return None
 
@@ -1025,7 +1025,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
             else:
                 return settings_childlock_text
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.set_device_childlock.__name__)
             return None
 
@@ -1046,7 +1046,7 @@ class DustMagnetDetailPages(DeviceDetailPages):
                     return {device_detail_info_names_texts[i]: device_detail_info_values_texts[i]
                             for i in range (len(device_detail_info_names))}
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.get_device_detail_info.__name__)
             return None
 
@@ -1065,6 +1065,6 @@ class DustMagnetDetailPages(DeviceDetailPages):
                 self.tap_element(device_delete_cancel_element)
                 return
         except exceptions.TimeoutException:
-            screenshot_base64 = self.get_screenshot64()
+            screenshot_base64 = self.get_screenshot_base64()
             self.save_image(screenshot_base64, self.get_device_detail_info.__name__)
             return None

@@ -19,14 +19,18 @@ class MainPage(BasePage):
         # when there is only 1 device, this text is not displayed
         self.device_count = (MobileBy.ID, "com.blueair.android:id/device_count")
 
-        self.device_name = (MobileBy.ID, "com.blueair.android:id/textDeviceName")
-        self.device_mode = (MobileBy.ID, "com.blueair.android:id/deviceModeLabel")
-        self.device_aqi_level = (MobileBy.ID, "com.blueair.android:id/statusLabel")
-        self.device_aqi_icon = (MobileBy.ID, "com.blueair.android:id/statusLabelIcon")
-        self.device_offline_icon = (MobileBy.ID, "com.blueair.android:id/offline_view")
-        self.device_clean_air_indication = (MobileBy.ID, "com.blueair.android:id/clear_air_in")
-        self.device_clean_air_bar = (MobileBy.ID, "com.blueair.android:id/device_progress_bar")
-        self.device_layout = (MobileBy.ID, "com.blueair.android:id/foregroundLayout")
+        # the device display area, when swipe up the device list, the area will show all the devices
+        self.device_display_area = (MobileBy.ID, "com.blueair.android:id/content_container")
+
+        self.device_name_list = (MobileBy.ID, "com.blueair.android:id/textDeviceName")
+        self.device_mode_list = (MobileBy.ID, "com.blueair.android:id/deviceModeLabel")
+        self.device_aqi_level_list = (MobileBy.ID, "com.blueair.android:id/statusLabel")
+        self.device_aqi_icon_list = (MobileBy.ID, "com.blueair.android:id/statusLabelIcon")
+        self.device_offline_icon_list = (MobileBy.ID, "com.blueair.android:id/offline_view")
+        self.device_clean_air_list = (MobileBy.ID, "com.blueair.android:id/clear_air_in")
+        self.device_clean_air_bar_list = (MobileBy.ID, "com.blueair.android:id/device_progress_bar")
+        self.device_welcome_home_list = (MobileBy.ID, "com.blueair.android:id/device_welcome_home")
+        self.device_block_list = (MobileBy.ID, "com.blueair.android:id/foregroundLayout")
 
         self.device_swipe_left = (MobileBy.ID, "com.blueair.android:id/leftview")
         self.device_swipe_right = (MobileBy.ID, "com.blueair.android:id/rightview")
@@ -37,314 +41,365 @@ class MainPage(BasePage):
         # DeviceConnectionPages object
         self.device_connection_pages = None
 
-    def add_new_device(self):
-        while True:
+    # find the device
+    def find_the_device(self, device_name: str):
+        """
+        try to find the device based on the given device_name
+        :param device_name:
+        :return: device name element
+        """
+        # try to scroll up the screen 10 times, so it can cover all devices in the list
+        for _ in range(10):
+            try:
+                device_name_elements = self.locate_element_list(self.device_name_list, waiting_time=10)
+                # find the device name
+                for device_name_element in device_name_elements:
+                    device_name_text_element = self.get_element_attribute(device_name_element, "text")
+                    if device_name_text_element == device_name:
+                        device_name_element_coordinates = self.get_element_coordinates(device_name_element)
+                        # print(device_name_element_coordinates)
+                        # print(self.set_position_on_screen((90, 90)))
+                        # the name element should not be too close to the bottom of the screen
+                        if device_name_element_coordinates["y"] < self.set_position_on_screen((90, 90))[1]:
+                            return device_name_element
+                # if not found, scroll up the screen by 25% of the screen height
+                start_position_percent = self.set_position_on_screen((75, 75))
+                end_position_percent = self.set_position_on_screen((50, 50))
+                self.scroll_screen(start_position_percent, end_position_percent)
+            except exceptions.TimeoutException:
+                return False
+        # doesn't find anything after 10 times try, return false
+        return False
+
+    # center the device
+    def center_the_device(self, device_name_element):
+        try:
+            if type(device_name_element) is webdriver.WebElement:
+                # move the device name to the middle of the screen
+                device_name_element_coordinates = self.get_element_coordinates(device_name_element)
+                # swipe the device name element into the center of the screen
+                start_position = (device_name_element_coordinates["x"], device_name_element_coordinates["y"])
+                end_position = self.set_position_on_screen((50, 50))
+                if abs(start_position[1] - end_position[1]) > 100:
+                    self.scroll_screen(start_position, end_position)
+        except exceptions.TimeoutException:
+            return False
+
+    # refind the device
+    def refind_the_device(self, device_name: str):
+        try:
+            device_name_elements = self.locate_element_list(self.device_name_list, waiting_time=10)
+            # find the device name again
+            for device_name_element in device_name_elements:
+                device_name_text_element = self.get_element_attribute(device_name_element, "text")
+                if device_name_text_element == device_name:
+                    return device_name_element
+        except exceptions.TimeoutException:
+            return False
+
+    # get the device name coordinates
+    def get_device_name_coordinates(self, device_name_element):
+        try:
+            if type(device_name_element) is webdriver.WebElement:
+                device_name_coordinates = self.get_element_coordinates(device_name_element)
+                return device_name_coordinates
+        except exceptions.TimeoutException:
+            return False
+
+    # find the device block
+    def find_device_block(self, device_name_coordinates):
+        try:
+            if (type(device_name_coordinates) is not None) and device_name_coordinates:
+                device_block_elements = self.locate_element_list(self.device_block_list)
+                for device_block_element in device_block_elements:
+                    device_block_coordinates = self.get_element_coordinates(device_block_element)
+                    # measure the name element position within the block element position
+                    # x is the difference the x start point between the name and the block
+                    # y is the difference the y start point between the name and the block
+                    # w is the difference the x end point between the name and the block
+                    # h is the difference the y end point between the name and the block
+                    x = device_name_coordinates["x"] - device_block_coordinates["x"]
+                    y = device_name_coordinates["y"] - device_block_coordinates["y"]
+                    h = -y + device_block_coordinates["height"] - device_name_coordinates["height"]
+                    w = -x + device_block_coordinates["width"] - device_name_coordinates["width"]
+                    # the name element is inside the block element
+                    if x > 0 and y > 0 and h > 0 and w > 0:
+                        return device_block_element
+                # if no finding, return None
+                return None
+        except exceptions.TimeoutException:
+            return False
+
+    # get the device block coordinates
+    def get_device_block_coordinates(self, device_block_element):
+        try:
+            if type(device_block_element) is webdriver.WebElement:
+                device_block_coordinates = self.get_element_coordinates(device_block_element)
+                return device_block_coordinates
+        except exceptions.TimeoutException:
+            return False
+
+    # find the device mode
+    def find_device_mode(self, device_block_coordinates):
+        try:
+            if (type(device_block_coordinates) is not None) and device_block_coordinates:
+                device_mode_elements = self.locate_element_list(self.device_mode_list)
+                for device_mode_element in device_mode_elements:
+                    device_mode_coordinates = self.get_element_coordinates(device_mode_element)
+                    # measure the device mode element position within the block element position
+                    # x is the difference the x start point between the device mode and the block
+                    # y is the difference the y start point between the device mode and the block
+                    # w is the difference the x end point between the device mode and the block
+                    # h is the difference the y end point between the device mode and the block
+                    x = device_mode_coordinates["x"] - device_block_coordinates["x"]
+                    y = device_mode_coordinates["y"] - device_block_coordinates["y"]
+                    h = -y + device_block_coordinates["height"] - device_mode_coordinates["height"]
+                    w = -x + device_block_coordinates["width"] - device_mode_coordinates["width"]
+                    # the device mode element is inside the block element
+                    if x > 0 and y > 0 and h > 0 and w > 0:
+                        device_mode_text = self.get_element_attribute(device_mode_element, "text")
+                        return device_mode_text
+                # if no finding, return None
+                return None
+        # if there is no device mode element
+        except exceptions.TimeoutException:
+            return None
+        else:
+            return False
+
+    # find aqi level
+    def find_aqi_level(self, device_block_coordinates):
+        try:
+            if (type(device_block_coordinates) is not None) and device_block_coordinates:
+                aqi_level_elements = self.locate_element_list(self.device_aqi_level_list)
+                for aqi_level_element in aqi_level_elements:
+                    aqi_level_coordinates = self.get_element_coordinates(aqi_level_element)
+                    # measure the device aqi level element position within the block element position
+                    # x is the difference the x start point between the aqi level and the block
+                    # y is the difference the y start point between the aqi level and the block
+                    # w is the difference the x end point between the aqi level and the block
+                    # h is the difference the y end point between the aqi level and the block
+                    x = aqi_level_coordinates["x"] - device_block_coordinates["x"]
+                    y = aqi_level_coordinates["y"] - device_block_coordinates["y"]
+                    h = -y + device_block_coordinates["height"] - aqi_level_coordinates["height"]
+                    w = -x + device_block_coordinates["width"] - aqi_level_coordinates["width"]
+
+                    # the device aqi level element is inside the block element
+                    if x > 0 and y > 0 and h > 0 and w > 0:
+                        aqi_level_text = self.get_element_attribute(aqi_level_element, "text")
+                        return aqi_level_text
+                # if no finding, return None
+                return None
+        # if there is no aqi level element
+        except exceptions.TimeoutException:
+            return None
+        else:
+            return False
+
+    # find aqi icon
+    def find_aqi_icon(self, device_block_coordinates):
+        try:
+            if (type(device_block_coordinates) is not None) and device_block_coordinates:
+                aqi_icon_elements = self.locate_element_list(self.device_aqi_icon_list)
+                for aqi_icon_element in aqi_icon_elements:
+                    aqi_icon_coordinates = self.get_element_coordinates(aqi_icon_element)
+                    # measure the device aqi icon element position within the block element position
+                    # x is the difference the x start point between the aqi icon and the block
+                    # y is the difference the y start point between the aqi icon and the block
+                    # w is the difference the x end point between the aqi icon and the block
+                    # h is the difference the y end point between the aqi icon and the block
+                    x = aqi_icon_coordinates["x"] - device_block_coordinates["x"]
+                    y = aqi_icon_coordinates["y"] - device_block_coordinates["y"]
+                    h = -y + device_block_coordinates["height"] - aqi_icon_coordinates["height"]
+                    w = -x + device_block_coordinates["width"] - aqi_icon_coordinates["width"]
+                    # the device aqi level element is inside the block element
+                    if x > 0 and y > 0 and h > 0 and w > 0:
+                        aqi_icon_coordinates = self.get_element_coordinates(aqi_icon_element)
+                        # get the device aqi icon color
+                        aqi_icon_color = self.analyze_screenshot_pixel_color(
+                            self.crop_screenshot_and_convert_as_array(self.get_screenshot_base64(), aqi_icon_coordinates))
+                        return aqi_icon_color
+                # if no finding, return None
+                return None
+        # if there is no aqi icon element
+        except exceptions.TimeoutException:
+            return None
+        else:
+            return False
+
+    # find the device offline icon
+    def find_offline_icon(self, device_block_coordinates, turn_online=False):
+        try:
+            if (type(device_block_coordinates) is not None) and device_block_coordinates:
+                offline_icon_elements = self.locate_element_list(self.device_offline_icon_list)
+                for offline_icon_element in offline_icon_elements:
+                    offline_icon_coordinates = self.get_element_coordinates(offline_icon_element)
+                    # measure the device aqi icon element position within the block element position
+                    # x is the difference the x start point between the offline icon and the block
+                    # y is the difference the y start point between the offline icon and the block
+                    # w is the difference the x end point between the offline icon and the block
+                    # h is the difference the y end point between the offline icon and the block
+                    x = offline_icon_coordinates["x"] - device_block_coordinates["x"]
+                    y = offline_icon_coordinates["y"] - device_block_coordinates["y"]
+                    h = -y + device_block_coordinates["height"] - offline_icon_coordinates["height"]
+                    w = -x + device_block_coordinates["width"] - offline_icon_coordinates["width"]
+                    # the device aqi level element is inside the block element
+                    if x > 0 and y > 0 and h > 0 and w > 0:
+                        # check if the device offline icon disappears
+                        if turn_online:
+                            if self.get_element_disappearance(offline_icon_element, waiting_time=20):
+                                device_offline_icon_result = "Turn Online"
+                                #print("device_offline_icon_result: " + str(device_offline_icon_result))
+                                return device_offline_icon_result
+                        # device offline icon appears
+                        device_offline_icon_result = "Offline"
+                        #print("device_offline_icon_result: " + str(device_offline_icon_result))
+                        return device_offline_icon_result
+                # if no finding, return None
+                return None
+        # if there is no offline icon element
+        except exceptions.TimeoutException:
+            return None
+        else:
+            return False
+
+    # find the device clean air indication text
+    def find_clean_air(self, device_block_coordinates):
+        try:
+            if (type(device_block_coordinates) is not None) and device_block_coordinates:
+                clean_air_elements = self.locate_element_list(self.device_clean_air_list)
+                for clean_air_element in clean_air_elements:
+                    clean_air_coordinates = self.get_element_coordinates(clean_air_element)
+                    # measure the device aqi icon element position within the block element position
+                    # x is the difference the x start point between the offline icon and the block
+                    # y is the difference the y start point between the offline icon and the block
+                    # w is the difference the x end point between the offline icon and the block
+                    # h is the difference the y end point between the offline icon and the block
+                    x = clean_air_coordinates["x"] - device_block_coordinates["x"]
+                    y = clean_air_coordinates["y"] - device_block_coordinates["y"]
+                    h = -y + device_block_coordinates["height"] - clean_air_coordinates["height"]
+                    w = -x + device_block_coordinates["width"] - clean_air_coordinates["width"]
+                    # the device clean air element is inside the block element
+                    if x > 0 and y > 0 and h > 0 and w > 0:
+                        clean_air_text = self.get_element_attribute(clean_air_element, "text")
+                        return clean_air_text
+                # if no finding, return None
+                return None
+        # if there is no clean air element
+        except exceptions.TimeoutException:
+            return None
+        else:
+            return False
+
+    # find the device clean air bar
+    def find_clean_air_bar(self, device_block_coordinates):
+        try:
+            if (type(device_block_coordinates) is not None) and device_block_coordinates:
+                clean_air_bar_elements = self.locate_element_list(self.device_clean_air_bar_list)
+                for clean_air_bar_element in clean_air_bar_elements:
+                    clean_air_bar_coordinates = self.get_element_coordinates(clean_air_bar_element)
+                    # measure the device aqi icon element position within the block element position
+                    # x is the difference the x start point between the offline icon and the block
+                    # y is the difference the y start point between the offline icon and the block
+                    # w is the difference the x end point between the offline icon and the block
+                    # h is the difference the y end point between the offline icon and the block
+                    x = clean_air_bar_coordinates["x"] - device_block_coordinates["x"]
+                    y = clean_air_bar_coordinates["y"] - device_block_coordinates["y"]
+                    h = -y + device_block_coordinates["height"] - clean_air_bar_coordinates["height"]
+                    w = -x + device_block_coordinates["width"] - clean_air_bar_coordinates["width"]
+                    # the device clean air bar element is inside the block element
+                    if x >= 0 and y >= 0 and h >= 0 and w >= 0:
+                        clean_air_bar_text = self.get_element_attribute(clean_air_bar_element, "text")
+                        return clean_air_bar_text
+                # if no finding, return None
+                return None
+        # if there is no clean air bar element
+        except exceptions.TimeoutException:
+            return None
+        else:
+            return False
+
+    # find the device welcome home
+    def find_welcome_home(self, device_block_coordinates):
+        try:
+            if (type(device_block_coordinates) is not None) and device_block_coordinates:
+                welcome_home_elements = self.locate_element_list(self.device_welcome_home_list)
+                for welcome_home_element in welcome_home_elements:
+                    welcome_home_coordinates = self.get_element_coordinates(welcome_home_element)
+                    # measure the device aqi icon element position within the block element position
+                    # x is the difference the x start point between the offline icon and the block
+                    # y is the difference the y start point between the offline icon and the block
+                    # w is the difference the x end point between the offline icon and the block
+                    # h is the difference the y end point between the offline icon and the block
+                    x = welcome_home_coordinates["x"] - device_block_coordinates["x"]
+                    y = welcome_home_coordinates["y"] - device_block_coordinates["y"]
+                    h = -y + device_block_coordinates["height"] - welcome_home_coordinates["height"]
+                    w = -x + device_block_coordinates["width"] - welcome_home_coordinates["width"]
+                    # the device welcome home element is inside the block element
+                    if x > 0 and y > 0 and h > 0 and w > 0:
+                        welcome_home_result = self.get_element_attribute(welcome_home_element, "text")
+                        return welcome_home_result
+                # if no finding, return None
+                return None
+        # if there is no welcome home element
+        except exceptions.TimeoutException:
+            return None
+        else:
+            return False
+
+    def get_device_status(self, device_name: str, **status_info):
+        """
+        return the device status in one block
+        include aqi level, aqi icon, offline icon, mode, clean air, clean air bar, welcome home
+        based on device name
+        :return:
+        """
+        try:
+            device_mode_result = aqi_level_result = aqi_icon_result = offline_icon_result = \
+                clean_air_result = clean_air_bar_result = welcome_home_result = None
+            self.center_the_device(self.find_the_device(device_name))
+            block_coordinates = self.get_device_block_coordinates(
+                self.find_device_block(self.get_device_name_coordinates(self.refind_the_device(device_name))))
+
+            if status_info.get("device_mode"):
+                device_mode_result = self.find_device_mode(block_coordinates)
+
+            if status_info.get("aqi_level"):
+                aqi_level_result = self.find_aqi_level(block_coordinates)
+
+            if status_info.get("offline_icon"):
+                # need to add something to check if the offline icon does appear or disappear or change from those 2 status
+                offline_icon_result = self.find_offline_icon(block_coordinates, turn_online=True)
+
+            if status_info.get("aqi_icon"):
+                aqi_icon_result = self.find_aqi_icon(block_coordinates)
+
+            if status_info.get("clean_air"):
+                clean_air_result = self.find_clean_air(block_coordinates)
+
+            if status_info.get("clean_air_bar"):
+                clean_air_bar_result = self.find_clean_air_bar(block_coordinates)
+
+            if status_info.get("welcome_home"):
+                welcome_home_result = self.find_welcome_home(block_coordinates)
+
+            return device_name, device_mode_result, aqi_level_result, aqi_icon_result, \
+                   offline_icon_result, clean_air_result, clean_air_bar_result, welcome_home_result
+        except exceptions.TimeoutException:
+            return False
+
+    def tap_connect_product(self):
+        # may have a long device list, it needs to scroll down to find connect product button
+        for _ in range(10): # try 10 times scroll in case of long device list
             try:
                 connect_product_button = self.locate_element(self.connect_product)
-                break
+                self.tap_element(connect_product_button)
+                return True
             except exceptions.TimeoutException:
                 start_position_percent = self.set_position_on_screen((75, 75))
-                end_position_percent = self.set_position_on_screen((50, 50))
+                end_position_percent = self.set_position_on_screen((25, 25))
                 self.scroll_screen(start_position_percent, end_position_percent)
-        self.tap_element(connect_product_button)
-        return self.device_connection_pages.tap_device_model()
-
-    def get_devices_info(self, device="all", attr="all", scroll="yes", **kwargs):
-        """
-        device info format:
-        ["device name", "device mode", "aqi level", "aqi icon", "offline icon", "clean air text", "clean air bar text"]
-        device info list format:
-        [[device info 1], [device info 2], [device info 3], ..., [device info n]]
-        :param device: the device name user wants to return, default are all devices
-        :param attr: the device attribute user wants to return, default are all attributes
-        :param scroll: the current UI device without scrolling, default is to return the whole list by scrolling
-        :param kwargs: waiting time for loading elements
-        :return: the device info list
-        """
-        device_info_list = []
-
-        # loop through the whole device list, when device list number < device count number
-        while True:
-            # device layout, need waiting_time to load
-            try:
-                device_layout_elements = self.locate_element_list(self.device_layout, kwargs["waiting_time"])
-            except exceptions.TimeoutException:
-                device_layout_elements = None
-
-            # device name: aware, sense+, classic, g4, b4, icp
-            try:
-                device_name_elements = self.locate_element_list(self.device_name)
-            except exceptions.TimeoutException:
-                device_name_elements = None
-
-            # device mode: fan speed %, auto, night, online(aware), offline, standby
-            try:
-                device_mode_elements = self.locate_element_list(self.device_mode)
-            except exceptions.TimeoutException:
-                device_mode_elements = None
-
-            # aqi_level: excellent, good, moderate, polluted, very polluted
-            try:
-                device_aqi_level_elements = self.locate_element_list(self.device_aqi_level)
-            except exceptions.TimeoutException:
-                device_aqi_level_elements = None
-
-            # aqi_icon: blue, green, yellow, orange, red
-            try:
-                device_aqi_icon_elements = self.locate_element_list(self.device_aqi_icon)
-            except exceptions.TimeoutException:
-                device_aqi_icon_elements = None
-
-            # device offline
-            try:
-                device_offline_icon_elements = self.locate_element_list(self.device_offline_icon)
-            except exceptions.TimeoutException:
-                device_offline_icon_elements = None
-
-            # device clean air indication: text
-            try:
-                device_clean_air_indication_elements = self.locate_element_list(self.device_clean_air_indication)
-            except exceptions.TimeoutException:
-                device_clean_air_indication_elements = None
-
-            # device clean air bar: text 100.0
-            try:
-                device_clean_air_bar_elements = self.locate_element_list(self.device_clean_air_bar)
-            except exceptions.TimeoutException:
-                device_clean_air_bar_elements = None
-
-            # organize device info into groups, iterate through devices
-            if device_layout_elements:
-                for device_layout_element in device_layout_elements:
-                    device_layout_element_duplicate = False
-                    device_info = []
-
-                    device_layout_coordinates = self.get_element_coordinates(device_layout_element)
-                    device_layout_x = device_layout_coordinates["x"]
-                    device_layout_y = device_layout_coordinates["y"]
-                    device_layout_w = device_layout_coordinates["x"] + device_layout_coordinates["width"]
-                    device_layout_h = device_layout_coordinates["y"] + device_layout_coordinates["height"]
-
-                    if device_name_elements:
-                        device_name_element_no_inside = True
-                        for device_name_element in device_name_elements:
-                            device_name_element_duplicate = False
-                            device_name_coordinates = self.get_element_coordinates(device_name_element)
-                            device_name_x = device_name_coordinates["x"]
-                            device_name_y = device_name_coordinates["y"]
-                            device_name_w = device_name_coordinates["x"] + device_name_coordinates["width"]
-                            device_name_h = device_name_coordinates["y"] + device_name_coordinates["height"]
-
-                            device_name_text = self.get_element_attribute(device_name_element, "text")
-                            # check if the name inside the layout
-                            if device_layout_x <= device_name_x and device_layout_y <= device_name_y \
-                                    and device_name_w <= device_layout_w and device_name_h <= device_layout_h:
-                                device_name_element_no_inside = False
-                                # check if the device name text already in the device info list
-                                for device_info_list_element in device_info_list:
-                                    # there is a device name text in the device info list, jump out the loop
-                                    if device_name_text in device_info_list_element:
-                                        device_name_element_duplicate = True
-                                        device_layout_element_duplicate = True
-                                        break
-                                # there is a device name text in the device info list
-                                # skip this device name element, go to the next
-                                if device_name_element_duplicate:
-                                    break
-                                # check if there is no device name text, add it into device info
-                                if not device_name_element_duplicate:
-                                    device_info.append(device_name_text)
-                                    break
-
-                        # there is duplicated device name text in the current device layout, skip this layout
-                        if device_layout_element_duplicate:
-                            continue
-
-                        # there is no device name in the current device layout, skip this layout
-                        if device_name_element_no_inside:
-                            continue
-
-                    if device_mode_elements:
-                        for device_mode_element in device_mode_elements:
-                            device_mode_coordinates = self.get_element_coordinates(device_mode_element)
-                            device_mode_x = device_mode_coordinates["x"]
-                            device_mode_y = device_mode_coordinates["y"]
-                            device_mode_w = device_mode_coordinates["x"] + device_mode_coordinates["width"]
-                            device_mode_h = device_mode_coordinates["y"] + device_mode_coordinates["height"]
-
-                            device_mode_text = self.get_element_attribute(device_mode_element, "text")
-                            # check if the mode inside the layout
-                            if device_layout_x <= device_mode_x and device_layout_y <= device_mode_y \
-                                    and device_mode_w <= device_layout_w and device_mode_h <= device_layout_h:
-                                device_info.append(device_mode_text)
-                                break
-
-                    if device_aqi_level_elements:
-                        device_aqi_level_element_no_inside = True
-                        for device_aqi_level_element in device_aqi_level_elements:
-                            device_aqi_level_coordinates = self.get_element_coordinates(device_aqi_level_element)
-                            device_aqi_level_x = device_aqi_level_coordinates["x"]
-                            device_aqi_level_y = device_aqi_level_coordinates["y"]
-                            device_aqi_level_w = device_aqi_level_coordinates["x"] + \
-                                                 device_aqi_level_coordinates["width"]
-                            device_aqi_level_h = device_aqi_level_coordinates["y"] + \
-                                                 device_aqi_level_coordinates["height"]
-
-                            device_aqi_level_text = self.get_element_attribute(device_aqi_level_element, "text")
-                            # check if the device aqi level inside the layout
-                            if device_layout_x <= device_aqi_level_x and device_layout_y <= device_aqi_level_y \
-                                    and device_aqi_level_w <= device_layout_w and device_aqi_level_h <= device_layout_h:
-                                device_aqi_level_element_no_inside = False
-                                device_info.append(device_aqi_level_text)
-                                break
-                        if device_aqi_level_element_no_inside:
-                            device_info.append(None)
-                    else:
-                        device_info.append(None)
-
-                    if device_aqi_icon_elements:
-                        device_aqi_icon_element_no_inside = True
-                        for device_aqi_icon_element in device_aqi_icon_elements:
-                            device_aqi_icon_coordinates = self.get_element_coordinates(device_aqi_icon_element)
-                            device_aqi_icon_x = device_aqi_icon_coordinates["x"]
-                            device_aqi_icon_y = device_aqi_icon_coordinates["y"]
-                            device_aqi_icon_w = device_aqi_icon_coordinates["x"] + device_aqi_icon_coordinates["width"]
-                            device_aqi_icon_h = device_aqi_icon_coordinates["y"] + device_aqi_icon_coordinates["height"]
-
-                            # analyze the color of the device aqi icon
-                            device_aqi_icon_image = self.analyze_screenshot_pixel_color(
-                                self.crop_screenshot(self.get_screenshot64(), device_aqi_icon_coordinates))
-                            # check if the device aqi icon inside the layout
-                            if device_layout_x <= device_aqi_icon_x and device_layout_y <= device_aqi_icon_y \
-                                    and device_aqi_icon_w <= device_layout_w and device_aqi_icon_h <= device_layout_h:
-                                device_aqi_icon_element_no_inside = False
-                                device_info.append(device_aqi_icon_image)
-                                break
-                        if device_aqi_icon_element_no_inside:
-                            device_info.append(None)
-                    else:
-                        device_info.append(None)
-
-                    if device_offline_icon_elements:
-                        device_offline_icon_element_no_inside = True
-                        for device_offline_icon_element in device_offline_icon_elements:
-                            device_offline_icon_coordinates = self.get_element_coordinates(device_offline_icon_element)
-                            device_offline_icon_x = device_offline_icon_coordinates["x"]
-                            device_offline_icon_y = device_offline_icon_coordinates["y"]
-                            device_offline_icon_w = device_offline_icon_coordinates["x"] + \
-                                                    device_offline_icon_coordinates["width"]
-                            device_offline_icon_h = device_offline_icon_coordinates["y"] + \
-                                                    device_offline_icon_coordinates["height"]
-
-                            if device_layout_x <= device_offline_icon_x and device_layout_y <= device_offline_icon_y \
-                                    and device_offline_icon_w <= device_layout_w and \
-                                    device_offline_icon_h <= device_layout_h:
-                                device_offline_icon_element_no_inside = False
-                                device_info.append("Offline")
-                                break
-                        if device_offline_icon_element_no_inside:
-                            device_info.append(None)
-                    else:
-                        device_info.append(None)
-
-                    if device_clean_air_indication_elements:
-                        device_clean_air_indication_element_no_inside = True
-                        for device_clean_air_indication_element in device_clean_air_indication_elements:
-                            device_clean_air_indication_coordinates = self.get_element_coordinates(
-                                device_clean_air_indication_element)
-                            device_clean_air_indication_x = device_clean_air_indication_coordinates["x"]
-                            device_clean_air_indication_y = device_clean_air_indication_coordinates["y"]
-                            device_clean_air_indication_w = device_clean_air_indication_coordinates["x"] + \
-                                                            device_clean_air_indication_coordinates["width"]
-                            device_clean_air_indication_h = device_clean_air_indication_coordinates["y"] + \
-                                                            device_clean_air_indication_coordinates["height"]
-
-                            device_clean_air_indication_text = self.get_element_attribute(
-                                device_clean_air_indication_element, "text")
-                            # check if the device clean air indication inside the layout
-                            if device_layout_x <= device_clean_air_indication_x \
-                                    and device_layout_y <= device_clean_air_indication_y \
-                                    and device_clean_air_indication_w <= device_layout_w \
-                                    and device_clean_air_indication_h <= device_layout_h:
-                                device_clean_air_indication_element_no_inside = False
-                                device_info.append(device_clean_air_indication_text)
-                                break
-                        if device_clean_air_indication_element_no_inside:
-                            device_info.append(None)
-                    else:
-                        device_info.append(None)
-
-                    if device_clean_air_bar_elements:
-                        device_clean_air_bar_element_no_inside = True
-                        for device_clean_air_bar_element in device_clean_air_bar_elements:
-                            device_clean_air_bar_coordinates = self.get_element_coordinates(
-                                device_clean_air_bar_element)
-                            device_clean_air_bar_x = device_clean_air_bar_coordinates["x"]
-                            device_clean_air_bar_y = device_clean_air_bar_coordinates["y"]
-                            device_clean_air_bar_w = device_clean_air_bar_coordinates["x"] + \
-                                                     device_clean_air_bar_coordinates["width"]
-                            device_clean_air_bar_h = device_clean_air_bar_coordinates["y"] + \
-                                                     device_clean_air_bar_coordinates["height"]
-
-                            device_clean_air_bar_text = self.get_element_attribute(device_clean_air_bar_element, "text")
-                            # check if the device clean air bar inside the layout
-                            if device_layout_x <= device_clean_air_bar_x \
-                                    and device_layout_y <= device_clean_air_bar_y \
-                                    and device_clean_air_bar_w <= device_layout_w \
-                                    and device_clean_air_bar_h <= device_layout_h:
-                                device_clean_air_bar_element_no_inside = False
-                                device_info.append(device_clean_air_bar_text)
-                                break
-                        if device_clean_air_bar_element_no_inside:
-                            device_info.append(None)
-                    else:
-                        device_info.append(None)
-
-                    # append the device info into device info list
-                    device_info_list.append(device_info)
-                    # print(device_info_list)
-            # delete the last element if the device current number < device count number
-            try:
-                connect_product_element = self.locate_element(self.connect_product)
-            except exceptions.TimeoutException:
-                connect_product_element = None
-
-            if not connect_product_element:
-                device_info_list = device_info_list[:-1]
-
-            # loop until device count number equals device list number if it's needed
-            if connect_product_element or scroll == "no":
-                break
-            else:
-                # scroll up the screen to load more devices
-                start_position_percent = self.set_position_on_screen((75, 75))
-                end_position_percent = self.set_position_on_screen((50, 50))
-                self.scroll_screen(start_position_percent, end_position_percent)
-
-        #attr: "device_name", "device_mode", "aqi_level", "aqi_icon", "offline_icon", "clean_air_text", "clean_air_bar"
-        if device == "all" and attr == "all":
-            return device_info_list
-        else:
-            for list_element in device_info_list:
-                if device in list_element:
-                    if attr == "device_name":
-                        return list_element[0]
-                    elif attr == "device_mode":
-                        return list_element[1]
-                    elif attr == "aqi_level":
-                        return list_element[2]
-                    elif attr== "aqi_icon":
-                        return list_element[3]
-                    elif attr == "offline_icon":
-                        return list_element[4]
-                    elif attr == "clean_air_text":
-                        return list_element[5]
-                    elif attr == "clean_air_bar":
-                        return list_element[6]
-                    else:
-                        return None
-                else:
-                    return None
+        return False
 
     def swipe_device_layout_left(self, device: str, **kwargs):
         device_info_dict = {}
@@ -353,13 +408,13 @@ class MainPage(BasePage):
         while True:
             # device layout, need waiting_time to load
             try:
-                device_layout_elements = self.locate_element_list(self.device_layout, kwargs["waiting_time"])
+                device_layout_elements = self.locate_element_list(self.device_block_list, kwargs["waiting_time"])
             except exceptions.TimeoutException:
                 device_layout_elements = None
 
             # device name: aware, sense+, classic, g4, b4, icp
             try:
-                device_name_elements = self.locate_element_list(self.device_name)
+                device_name_elements = self.locate_element_list(self.device_name_list)
             except exceptions.TimeoutException:
                 device_name_elements = None
 
@@ -450,7 +505,7 @@ class MainPage(BasePage):
                 auto_mode_element = self.locate_element(self.swipe_auto_mode)
                 auto_mode_coordinates = self.get_element_coordinates(auto_mode_element)
                 button_status = self.analyze_button_pixel_color(
-                    self.crop_screenshot(self.get_screenshot64(), auto_mode_coordinates))
+                    self.crop_screenshot_and_compress_as_string(self.get_screenshot_base64(), auto_mode_coordinates))
                 if button_status == press_status:
                     break
             return True
@@ -471,7 +526,7 @@ class MainPage(BasePage):
                 night_mode_element = self.locate_element(self.swipe_night_mode)
                 night_mode_coordinates = self.get_element_coordinates(night_mode_element)
                 button_status = self.analyze_button_pixel_color(
-                    self.crop_screenshot(self.get_screenshot64(), night_mode_coordinates))
+                    self.crop_screenshot_and_compress_as_string(self.get_screenshot_base64(), night_mode_coordinates))
                 if button_status == press_status:
                     break
             return True
@@ -519,13 +574,13 @@ class MainPage(BasePage):
             # print("locate elements start")
             # device layout, need waiting_time to load
             try:
-                device_layout_elements = self.locate_element_list(self.device_layout, kwargs["waiting_time"])
+                device_layout_elements = self.locate_element_list(self.device_block_list, kwargs["waiting_time"])
             except exceptions.TimeoutException:
                 device_layout_elements = None
 
             # device name: aware, sense+, classic, g4, b4, icp
             try:
-                device_name_elements = self.locate_element_list(self.device_name)
+                device_name_elements = self.locate_element_list(self.device_name_list)
                 # print("device_name_coordinates")
             except exceptions.TimeoutException:
                 device_name_elements = None
@@ -620,7 +675,7 @@ class MainPage(BasePage):
                 standby_mode_element = self.locate_element(self.swipe_standby_mode)
                 standby_mode_coordinates = self.get_element_coordinates(standby_mode_element)
                 button_status = self.analyze_button_pixel_color(
-                    self.crop_screenshot(self.get_screenshot64(), standby_mode_coordinates))
+                    self.crop_screenshot_and_compress_as_string(self.get_screenshot_base64(), standby_mode_coordinates))
                 if button_status == press_status:
                     #print("pressed")
                     break
@@ -668,7 +723,7 @@ class MainPage(BasePage):
         while True:
             # device name: aware, sense+, classic, g4, b4, icp
             try:
-                device_name_elements = self.locate_element_list(self.device_name)
+                device_name_elements = self.locate_element_list(self.device_name_list)
                 # print("device_name_coordinates")
             except exceptions.TimeoutException:
                 device_name_elements = None
@@ -685,7 +740,7 @@ class MainPage(BasePage):
                             device_name_tap_done = True
                             try:
                                 # if the device name elements still can be seen, then go to the loop, tap the device name again
-                                self.locate_element_list(self.device_name)
+                                self.locate_element_list(self.device_name_list)
                                 continue
                             except exceptions.TimeoutException:
                                 # if the device name elements can not be found, then jump out the loop
